@@ -1,0 +1,190 @@
+/**
+ * AMS Elementor Widgets Stylesheet.
+ *
+ * Enqueued only when an AMS widget is present on the page.
+ * Dynamic values are applied via add_render_attribute() inline styles.
+ */
+
+/* ── Campaign Archive ── */
+.ams-archive-grid {
+    display: grid;
+    gap: 20px;
+}
+.ams-archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.ams-archive-card {
+    transition: all 300ms ease;
+}
+.ams-archive-title {
+    margin: 0 0 8px;
+}
+.ams-archive-excerpt {
+    margin: 0 0 12px;
+}
+.ams-archive-meta {
+    margin: 0 0 12px;
+    font-size: 0.85em;
+}
+.ams-archive-btn {
+    display: inline-block;
+    border: 1px solid transparent;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ── Opt-In Form ── */
+.ams-optin-container {
+    box-sizing: border-box;
+}
+.ams-optin-headline {
+    margin: 0 0 8px;
+}
+.ams-optin-subheadline {
+    margin: 0 0 16px;
+}
+.ams-optin-form {
+    display: flex;
+    flex-direction: column;
+}
+.ams-optin-field {
+    box-sizing: border-box;
+    width: 100%;
+    outline: none;
+}
+.ams-optin-field:focus {
+    outline: none;
+}
+.ams-optin-submit {
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    width: 100%;
+    box-sizing: border-box;
+}
+.ams-optin-consent {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+.ams-optin-success {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+.ams-optin-success.ams-visible {
+    display: block;
+}
+.ams-optin-form.ams-hidden {
+    display: none;
+}
+.ams-optin-error {
+    color: #d63638;
+    font-size: 0.85em;
+    margin-top: 4px;
+    display: none;
+}
+
+/* ── Subscriber Count Badge ── */
+.ams-badge-container {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+.ams-badge-number {
+    font-variant-numeric: tabular-nums;
+}
+.ams-badge-label {
+    white-space: nowrap;
+}
+
+/* ── Preference Centre ── */
+.ams-prefcentre-container {
+    box-sizing: border-box;
+}
+.ams-prefcentre-heading {
+    margin: 0 0 8px;
+}
+.ams-prefcentre-description {
+    margin: 0 0 20px;
+}
+.ams-prefcentre-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+.ams-prefcentre-row:last-child {
+    border-bottom: none;
+}
+.ams-prefcentre-channel-label {
+    font-weight: 600;
+}
+.ams-prefcentre-toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+}
+.ams-prefcentre-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.ams-prefcentre-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 26px;
+    transition: background-color 200ms ease;
+}
+.ams-prefcentre-slider::before {
+    content: '';
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 200ms ease;
+}
+.ams-prefcentre-toggle input:checked + .ams-prefcentre-slider {
+    background-color: #2271b1;
+}
+.ams-prefcentre-toggle input:checked + .ams-prefcentre-slider::before {
+    transform: translateX(22px);
+}
+.ams-prefcentre-save {
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.ams-prefcentre-status {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 0.9em;
+    display: none;
+}
+.ams-prefcentre-status.ams-visible {
+    display: block;
+}
+.ams-prefcentre-unsubscribe {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.85em;
+}
+.ams-prefcentre-unsubscribe a {
+    color: inherit;
+    opacity: 0.7;
+}
+.ams-prefcentre-unsubscribe a:hover {
+    opacity: 1;
+}
