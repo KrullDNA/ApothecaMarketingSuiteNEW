@@ -15,6 +15,8 @@ class SettingsPage {
         add_action( 'wp_ajax_ams_test_connection', [ $this, 'ajax_test_connection' ] );
         add_action( 'wp_ajax_ams_save_sms_settings', [ $this, 'ajax_save_sms_settings' ] );
         add_action( 'wp_ajax_ams_test_sms', [ $this, 'ajax_test_sms' ] );
+        add_action( 'wp_ajax_ams_save_reviews_settings', [ $this, 'ajax_save_reviews_settings' ] );
+        add_action( 'wp_ajax_ams_refresh_reviews', [ $this, 'ajax_refresh_reviews' ] );
     }
 
     public function register_settings(): void {
@@ -57,6 +59,7 @@ class SettingsPage {
             <h2 class="nav-tab-wrapper" id="ams-settings-tabs">
                 <a href="#sync" class="nav-tab nav-tab-active" data-tab="sync"><?php esc_html_e( 'Sync', 'apotheca-marketing-suite' ); ?></a>
                 <a href="#sms" class="nav-tab" data-tab="sms"><?php esc_html_e( 'SMS', 'apotheca-marketing-suite' ); ?></a>
+                <a href="#reviews" class="nav-tab" data-tab="reviews"><?php esc_html_e( 'Reviews', 'apotheca-marketing-suite' ); ?></a>
             </h2>
 
             <div class="ams-tab-content" id="ams-tab-sync">
@@ -138,6 +141,8 @@ class SettingsPage {
 
             <?php $this->render_sms_tab(); ?>
 
+            <?php $this->render_reviews_tab(); ?>
+
         </div><!-- .wrap -->
 
         <script>
@@ -154,9 +159,11 @@ class SettingsPage {
                     if (target) target.style.display = 'block';
                 });
             });
-            /* Hide SMS tab by default */
+            /* Hide SMS and Reviews tabs by default */
             var smsTab = document.getElementById('ams-tab-sms');
             if (smsTab) smsTab.style.display = 'none';
+            var reviewsTab = document.getElementById('ams-tab-reviews');
+            if (reviewsTab) reviewsTab.style.display = 'none';
 
             var ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
 
@@ -242,6 +249,56 @@ class SettingsPage {
                     };
                     xhr.onerror = function() { testSmsBtn.disabled = false; result.textContent = 'Network error.'; result.style.color = 'red'; };
                     xhr.send('action=ams_test_sms&phone=' + encodeURIComponent(phone) + '&_wpnonce=<?php echo esc_js( wp_create_nonce( 'ams_test_sms' ) ); ?>');
+                });
+            }
+            /* Save Reviews settings */
+            var reviewsForm = document.getElementById('ams-reviews-settings-form');
+            if (reviewsForm) {
+                reviewsForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var result = document.getElementById('ams-reviews-save-result');
+                    result.textContent = 'Saving...';
+                    var fd = new FormData(reviewsForm);
+                    fd.append('action', 'ams_save_reviews_settings');
+                    fd.append('_wpnonce', '<?php echo esc_js( wp_create_nonce( 'ams_reviews_settings' ) ); ?>');
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', ajaxUrl);
+                    xhr.onload = function() {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            result.textContent = data.success ? 'Reviews settings saved!' : (data.data || 'Save failed.');
+                            result.style.color = data.success ? 'green' : 'red';
+                        } catch(e) { result.textContent = 'Error.'; result.style.color = 'red'; }
+                    };
+                    xhr.send(fd);
+                });
+            }
+
+            /* Refresh Reviews Cache */
+            var refreshBtn = document.getElementById('ams-refresh-reviews-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    var result = document.getElementById('ams-refresh-reviews-result');
+                    result.textContent = 'Refreshing...';
+                    refreshBtn.disabled = true;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', ajaxUrl);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.onload = function() {
+                        refreshBtn.disabled = false;
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data.success) {
+                                result.textContent = 'Cache refreshed! ' + data.data.count + ' reviews cached.';
+                                result.style.color = 'green';
+                            } else {
+                                result.textContent = data.data || 'Refresh failed.';
+                                result.style.color = 'red';
+                            }
+                        } catch(e) { result.textContent = 'Error.'; result.style.color = 'red'; }
+                    };
+                    xhr.onerror = function() { refreshBtn.disabled = false; result.textContent = 'Network error.'; result.style.color = 'red'; };
+                    xhr.send('action=ams_refresh_reviews&_wpnonce=<?php echo esc_js( wp_create_nonce( 'ams_refresh_reviews' ) ); ?>');
                 });
             }
         })();
@@ -508,6 +565,147 @@ class SettingsPage {
         } else {
             wp_send_json_error( $result['error'] );
         }
+    }
+
+    /**
+     * Render the Reviews settings tab.
+     */
+    private function render_reviews_tab(): void {
+        $reviews_settings = get_option( 'ams_reviews_settings', [] );
+        $settings         = get_option( 'ams_settings', [] );
+        $store_url        = $settings['store_url'] ?? '';
+        $min_rating       = (int) ( $reviews_settings['min_rating'] ?? 3 );
+        $feedback_page_id = (int) ( $reviews_settings['feedback_page_id'] ?? 0 );
+        $gate_expiry      = (int) ( $reviews_settings['gate_expiry_hours'] ?? 72 );
+
+        $cache_job = new \Apotheca\Marketing\Reviews\ReviewsCacheJob();
+        $stats     = $cache_job->get_stats();
+
+        $pages = get_pages( [ 'post_status' => 'publish' ] );
+        ?>
+        <div class="ams-tab-content" id="ams-tab-reviews">
+            <form id="ams-reviews-settings-form">
+                <h2><?php esc_html_e( 'Reviews Settings', 'apotheca-marketing-suite' ); ?></h2>
+                <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Store URL', 'apotheca-marketing-suite' ); ?></th>
+                        <td>
+                            <code><?php echo esc_html( $store_url ?: __( 'Not configured', 'apotheca-marketing-suite' ) ); ?></code>
+                            <p class="description"><?php esc_html_e( 'Configured in the Sync tab. Reviews are fetched from this store.', 'apotheca-marketing-suite' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="ams_reviews_min_rating"><?php esc_html_e( 'Min Rating to Cache', 'apotheca-marketing-suite' ); ?></label>
+                        </th>
+                        <td>
+                            <select id="ams_reviews_min_rating" name="min_rating">
+                                <option value="3" <?php selected( $min_rating, 3 ); ?>>3+ Stars</option>
+                                <option value="4" <?php selected( $min_rating, 4 ); ?>>4+ Stars</option>
+                                <option value="5" <?php selected( $min_rating, 5 ); ?>>5 Stars Only</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="ams_reviews_feedback_page"><?php esc_html_e( 'Private Feedback Page', 'apotheca-marketing-suite' ); ?></label>
+                        </th>
+                        <td>
+                            <select id="ams_reviews_feedback_page" name="feedback_page_id">
+                                <option value="0"><?php esc_html_e( '— Select Page —', 'apotheca-marketing-suite' ); ?></option>
+                                <?php foreach ( $pages as $page ) : ?>
+                                    <option value="<?php echo (int) $page->ID; ?>" <?php selected( $feedback_page_id, $page->ID ); ?>>
+                                        <?php echo esc_html( $page->post_title ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php esc_html_e( 'Low-rating review gate clicks (1-3 stars) redirect here instead of the public review page.', 'apotheca-marketing-suite' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="ams_reviews_gate_expiry"><?php esc_html_e( 'Review Gate Link Expiry', 'apotheca-marketing-suite' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="number" id="ams_reviews_gate_expiry" name="gate_expiry_hours"
+                                   value="<?php echo esc_attr( $gate_expiry ); ?>"
+                                   min="1" max="720" class="small-text" /> <?php esc_html_e( 'hours', 'apotheca-marketing-suite' ); ?>
+                        </td>
+                    </tr>
+                </table>
+
+                <p class="submit">
+                    <button type="submit" class="button button-primary"><?php esc_html_e( 'Save Reviews Settings', 'apotheca-marketing-suite' ); ?></button>
+                    <span id="ams-reviews-save-result" style="margin-left:10px;"></span>
+                </p>
+            </form>
+
+            <hr />
+
+            <h2><?php esc_html_e( 'Cache Stats', 'apotheca-marketing-suite' ); ?></h2>
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row"><?php esc_html_e( 'Total Cached Reviews', 'apotheca-marketing-suite' ); ?></th>
+                    <td><strong><?php echo (int) $stats['total']; ?></strong></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e( 'KDNA Source', 'apotheca-marketing-suite' ); ?></th>
+                    <td><?php echo (int) $stats['kdna_count']; ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e( 'WooCommerce Source', 'apotheca-marketing-suite' ); ?></th>
+                    <td><?php echo (int) $stats['woo_count']; ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e( 'Last Refreshed', 'apotheca-marketing-suite' ); ?></th>
+                    <td><?php echo $stats['last_refreshed'] ? esc_html( $stats['last_refreshed'] ) : esc_html__( 'Never', 'apotheca-marketing-suite' ); ?></td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e( 'Manual Refresh', 'apotheca-marketing-suite' ); ?></th>
+                    <td>
+                        <button type="button" class="button" id="ams-refresh-reviews-btn"><?php esc_html_e( 'Refresh Now', 'apotheca-marketing-suite' ); ?></button>
+                        <span id="ams-refresh-reviews-result" style="margin-left:10px;"></span>
+                    </td>
+                </tr>
+            </table>
+        </div><!-- #ams-tab-reviews -->
+        <?php
+    }
+
+    /**
+     * AJAX handler: save reviews settings.
+     */
+    public function ajax_save_reviews_settings(): void {
+        check_ajax_referer( 'ams_reviews_settings' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'apotheca-marketing-suite' ) );
+        }
+
+        $settings = [
+            'min_rating'       => max( 3, min( 5, (int) ( $_POST['min_rating'] ?? 3 ) ) ),
+            'feedback_page_id' => absint( $_POST['feedback_page_id'] ?? 0 ),
+            'gate_expiry_hours'=> max( 1, min( 720, (int) ( $_POST['gate_expiry_hours'] ?? 72 ) ) ),
+        ];
+
+        update_option( 'ams_reviews_settings', $settings );
+        wp_send_json_success( __( 'Reviews settings saved.', 'apotheca-marketing-suite' ) );
+    }
+
+    /**
+     * AJAX handler: manually refresh the reviews cache.
+     */
+    public function ajax_refresh_reviews(): void {
+        check_ajax_referer( 'ams_refresh_reviews' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'apotheca-marketing-suite' ) );
+        }
+
+        $job    = new \Apotheca\Marketing\Reviews\ReviewsCacheJob();
+        $result = $job->manual_refresh();
+
+        wp_send_json_success( $result );
     }
 
     /**

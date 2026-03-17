@@ -19,6 +19,8 @@ class Activator {
         $unsub->add_rewrite_rules();
         $doi = new GDPR\DoubleOptIn();
         $doi->add_rewrite_rules();
+        $review_gate = new Reviews\ReviewGate();
+        $review_gate->add_rewrite_rules();
         flush_rewrite_rules();
     }
 
@@ -261,6 +263,34 @@ class Activator {
             KEY event_type (event_type),
             KEY received_at (received_at),
             KEY status (status)
+        ) $charset_collate;";
+
+        // ams_reviews_cache
+        $tables[] = "CREATE TABLE {$prefix}reviews_cache (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            source ENUM('kdna','woocommerce') NOT NULL DEFAULT 'woocommerce',
+            product_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+            woo_comment_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+            reviewer_name VARCHAR(100) DEFAULT '',
+            rating TINYINT UNSIGNED NOT NULL DEFAULT 0,
+            review_title VARCHAR(255) DEFAULT '',
+            review_body TEXT DEFAULT NULL,
+            review_date DATETIME DEFAULT NULL,
+            verified_purchase TINYINT NOT NULL DEFAULT 0,
+            positive_votes INT NOT NULL DEFAULT 0,
+            negative_votes INT NOT NULL DEFAULT 0,
+            attachment_ids JSON DEFAULT NULL,
+            video_url VARCHAR(500) DEFAULT '',
+            product_name VARCHAR(255) DEFAULT '',
+            product_image_url VARCHAR(500) DEFAULT '',
+            product_url VARCHAR(500) DEFAULT '',
+            cached_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY product_id (product_id),
+            KEY source (source),
+            KEY rating (rating),
+            KEY cached_at (cached_at),
+            UNIQUE KEY woo_comment_id (woo_comment_id)
         ) $charset_collate;";
 
         return $tables;

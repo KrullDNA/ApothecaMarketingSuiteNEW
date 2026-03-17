@@ -85,6 +85,16 @@ final class Plugin {
         // SMS webhook endpoints (inbound + delivery status).
         add_action( 'rest_api_init', [ new REST\SMSWebhookEndpoint(), 'register_routes' ] );
 
+        // Reviews: nightly cache refresh job.
+        $reviews_job = new Reviews\ReviewsCacheJob();
+        $reviews_job->register();
+
+        // Reviews: review gate rewrite rules.
+        $review_gate = new Reviews\ReviewGate();
+        add_action( 'init', [ $review_gate, 'add_rewrite_rules' ] );
+        add_filter( 'query_vars', [ $review_gate, 'query_vars' ] );
+        add_action( 'template_redirect', [ $review_gate, 'handle_request' ] );
+
         // Elementor integration.
         add_action( 'elementor/widgets/register', [ $this, 'register_elementor_widgets' ] );
 

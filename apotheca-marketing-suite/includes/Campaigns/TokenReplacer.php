@@ -17,7 +17,7 @@ class TokenReplacer {
      *   {{order_number}} {{order_total}} {{order_date}} {{order_status}}
      *   {{cart_url}} {{cart_total}} {{product_name}} {{product_url}}
      *   {{product_image_url}} {{product_price}} {{coupon_code}}
-     *   {{ai_product_recommendations}} (filled in Session 9)
+     *   {{review_link}} {{ai_product_recommendations}} (filled in Session 9)
      *
      * Conditionals:
      *   {{if first_name}}Hi {{first_name}}{{else}}Hi there{{/if}}
@@ -112,6 +112,11 @@ class TokenReplacer {
 
             // Coupon.
             'coupon_code'     => $extra['coupon_code'] ?? '',
+
+            // Review link (product page #reviews section).
+            'review_link' => ! empty( $product_data['product_url'] )
+                ? $product_data['product_url'] . '#reviews'
+                : ( $store_url ? $store_url : '' ),
 
             // AI recommendations (Session 9 placeholder).
             'ai_product_recommendations' => $extra['ai_product_recommendations'] ?? '',
