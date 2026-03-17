@@ -30,7 +30,7 @@ class Menu {
             [ 'ams-subscribers', __( 'Subscribers', 'apotheca-marketing-suite' ), [ $this, 'render_subscribers' ] ],
             [ 'ams-flows',       __( 'Flows', 'apotheca-marketing-suite' ),       [ $this, 'render_flows' ] ],
             [ 'ams-campaigns',   __( 'Campaigns', 'apotheca-marketing-suite' ),   [ $this, 'render_stub' ] ],
-            [ 'ams-segments',    __( 'Segments', 'apotheca-marketing-suite' ),    [ $this, 'render_stub' ] ],
+            [ 'ams-segments',    __( 'Segments', 'apotheca-marketing-suite' ),    [ $this, 'render_segments' ] ],
             [ 'ams-forms',       __( 'Forms', 'apotheca-marketing-suite' ),       [ $this, 'render_forms' ] ],
             [ 'ams-sms',         __( 'SMS', 'apotheca-marketing-suite' ),         [ $this, 'render_stub' ] ],
             [ 'ams-analytics',   __( 'Analytics', 'apotheca-marketing-suite' ),   [ $this, 'render_stub' ] ],
@@ -71,6 +71,11 @@ class Menu {
 
     public function render_forms(): void {
         $page = new FormsPage();
+        $page->render();
+    }
+
+    public function render_segments(): void {
+        $page = new SegmentsPage();
         $page->render();
     }
 

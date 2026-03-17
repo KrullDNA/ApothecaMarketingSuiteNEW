@@ -57,12 +57,20 @@ final class Plugin {
         $triggers = new Flows\TriggerManager();
         $triggers->register();
 
+        // Segments REST endpoint.
+        add_action( 'rest_api_init', [ new REST\SegmentsEndpoint(), 'register_routes' ] );
+
+        // Segment recalculator (every 6 hours via Action Scheduler).
+        $segment_recalc = new Segments\SegmentRecalculator();
+        $segment_recalc->register();
+
         // Admin.
         if ( is_admin() ) {
             new Admin\Menu();
             new Admin\SettingsPage();
             new Admin\SubscribersPage();
             new Admin\FlowsPage();
+            new Admin\SegmentsPage();
         }
     }
 }
