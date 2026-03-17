@@ -25,7 +25,35 @@ final class Plugin {
      * Register Elementor widgets.
      */
     public function register_elementor_widgets( \Elementor\Widgets_Manager $widgets_manager ): void {
+        $widgets_manager->register( new Elementor\OptInFormWidget() );
+        $widgets_manager->register( new Elementor\SubscriberCountBadgeWidget() );
         $widgets_manager->register( new Elementor\CampaignArchiveWidget() );
+        $widgets_manager->register( new Elementor\PreferenceCentreWidget() );
+    }
+
+    /**
+     * Register widget frontend styles and scripts.
+     */
+    public function register_widget_assets(): void {
+        wp_register_style(
+            'ams-widgets',
+            AMS_PLUGIN_URL . 'assets/css/ams-widgets.css',
+            [],
+            AMS_VERSION
+        );
+
+        wp_register_script(
+            'ams-preference-centre',
+            AMS_PLUGIN_URL . 'assets/js/ams-preference-centre.min.js',
+            [],
+            AMS_VERSION,
+            true
+        );
+
+        wp_localize_script( 'ams-preference-centre', 'amsPreferenceCentre', [
+            'restUrl'  => esc_url_raw( rest_url( '/' ) ),
+            'saveText' => esc_html__( 'Save Preferences', 'apotheca-marketing-suite' ),
+        ] );
     }
 
     private function init(): void {
@@ -129,6 +157,8 @@ final class Plugin {
 
         // Elementor integration.
         add_action( 'elementor/widgets/register', [ $this, 'register_elementor_widgets' ] );
+        add_action( 'wp_enqueue_scripts', [ $this, 'register_widget_assets' ] );
+        add_action( 'elementor/editor/before_enqueue_scripts', [ $this, 'register_widget_assets' ] );
 
         // Admin.
         if ( is_admin() ) {

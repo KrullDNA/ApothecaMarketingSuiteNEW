@@ -34,6 +34,10 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         return [ 'campaign', 'archive', 'newsletter', 'email', 'marketing' ];
     }
 
+    public function get_style_depends(): array {
+        return [ 'ams-widgets' ];
+    }
+
     protected function register_controls(): void {
         /* ── Content: Layout ── */
         $this->start_controls_section( 'section_layout', [
@@ -60,7 +64,8 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
                 '3' => '3',
                 '4' => '4',
             ],
-            'condition' => [ 'layout' => 'grid' ],
+            'condition'  => [ 'layout' => 'grid' ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-grid' => 'grid-template-columns: repeat({{VALUE}}, 1fr);' ],
         ] );
 
         $this->add_control( 'posts_per_page', [
@@ -77,6 +82,10 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
             'default'    => [ 'size' => 20, 'unit' => 'px' ],
             'size_units' => [ 'px' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 60 ] ],
+            'selectors'  => [
+                '{{WRAPPER}} .ams-archive-grid' => 'gap: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .ams-archive-list' => 'gap: {{SIZE}}{{UNIT}};',
+            ],
         ] );
 
         $this->end_controls_section();
@@ -88,9 +97,10 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         ] );
 
         $this->add_control( 'card_background', [
-            'label'   => esc_html__( 'Background', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#ffffff',
+            'label'     => esc_html__( 'Background', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#ffffff',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-card' => 'background-color: {{VALUE}};' ],
         ] );
 
         $this->add_control( 'card_border_radius', [
@@ -99,6 +109,7 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
             'default'    => [ 'size' => 8, 'unit' => 'px' ],
             'size_units' => [ 'px' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 50 ] ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-card' => 'border-radius: {{SIZE}}{{UNIT}};' ],
         ] );
 
         $this->add_control( 'card_padding', [
@@ -106,6 +117,7 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
             'type'       => \Elementor\Controls_Manager::DIMENSIONS,
             'default'    => [ 'top' => '20', 'right' => '20', 'bottom' => '20', 'left' => '20', 'unit' => 'px' ],
             'size_units' => [ 'px', 'em' ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-card' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
         ] );
 
         $this->add_group_control( \Elementor\Group_Control_Box_Shadow::get_type(), [
@@ -114,24 +126,33 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         ] );
 
         $this->add_control( 'card_hover_bg', [
-            'label'   => esc_html__( 'Hover Background', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#f9f9f9',
+            'label'     => esc_html__( 'Hover Background', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#f9f9f9',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-card:hover' => 'background-color: {{VALUE}};' ],
         ] );
 
         $this->add_control( 'card_hover_translatey', [
-            'label'   => esc_html__( 'Hover Translate Y', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::SLIDER,
-            'default' => [ 'size' => -4, 'unit' => 'px' ],
-            'range'   => [ 'px' => [ 'min' => -20, 'max' => 20 ] ],
+            'label'     => esc_html__( 'Hover Translate Y', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::SLIDER,
+            'default'   => [ 'size' => -4, 'unit' => 'px' ],
+            'range'     => [ 'px' => [ 'min' => -20, 'max' => 20 ] ],
+            'selectors' => [ '{{WRAPPER}} .ams-archive-card:hover' => 'transform: translateY({{SIZE}}px);' ],
         ] );
 
         $this->add_control( 'card_transition', [
-            'label'   => esc_html__( 'Transition Duration (ms)', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::NUMBER,
-            'default' => 300,
-            'min'     => 0,
-            'max'     => 2000,
+            'label'     => esc_html__( 'Transition Duration (ms)', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::NUMBER,
+            'default'   => 300,
+            'min'       => 0,
+            'max'       => 2000,
+            'selectors' => [ '{{WRAPPER}} .ams-archive-card' => 'transition: all {{VALUE}}ms ease;' ],
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Box_Shadow::get_type(), [
+            'name'     => 'card_hover_shadow',
+            'label'    => esc_html__( 'Hover Box Shadow', 'apotheca-marketing-suite' ),
+            'selector' => '{{WRAPPER}} .ams-archive-card:hover',
         ] );
 
         $this->end_controls_section();
@@ -148,15 +169,17 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         ] );
 
         $this->add_control( 'title_color', [
-            'label'   => esc_html__( 'Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#333333',
+            'label'     => esc_html__( 'Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#333333',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-title' => 'color: {{VALUE}};' ],
         ] );
 
         $this->add_control( 'title_hover_color', [
-            'label'   => esc_html__( 'Hover Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#2271b1',
+            'label'     => esc_html__( 'Hover Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#2271b1',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-card:hover .ams-archive-title' => 'color: {{VALUE}};' ],
         ] );
 
         $this->end_controls_section();
@@ -173,9 +196,10 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         ] );
 
         $this->add_control( 'excerpt_color', [
-            'label'   => esc_html__( 'Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#666666',
+            'label'     => esc_html__( 'Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#666666',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-excerpt' => 'color: {{VALUE}};' ],
         ] );
 
         $this->end_controls_section();
@@ -192,9 +216,10 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         ] );
 
         $this->add_control( 'meta_color', [
-            'label'   => esc_html__( 'Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#999999',
+            'label'     => esc_html__( 'Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#999999',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-meta' => 'color: {{VALUE}};' ],
         ] );
 
         $this->end_controls_section();
@@ -217,19 +242,22 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
             'label' => esc_html__( 'Normal', 'apotheca-marketing-suite' ),
         ] );
         $this->add_control( 'btn_bg', [
-            'label'   => esc_html__( 'Background', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#2271b1',
+            'label'     => esc_html__( 'Background', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#2271b1',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-btn' => 'background-color: {{VALUE}};' ],
         ] );
         $this->add_control( 'btn_color', [
-            'label'   => esc_html__( 'Text Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#ffffff',
+            'label'     => esc_html__( 'Text Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#ffffff',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-btn' => 'color: {{VALUE}};' ],
         ] );
         $this->add_control( 'btn_border_color', [
-            'label'   => esc_html__( 'Border Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#2271b1',
+            'label'     => esc_html__( 'Border Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#2271b1',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-btn' => 'border-color: {{VALUE}};' ],
         ] );
         $this->end_controls_tab();
 
@@ -237,19 +265,22 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
             'label' => esc_html__( 'Hover', 'apotheca-marketing-suite' ),
         ] );
         $this->add_control( 'btn_hover_bg', [
-            'label'   => esc_html__( 'Background', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#135e96',
+            'label'     => esc_html__( 'Background', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#135e96',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-btn:hover' => 'background-color: {{VALUE}};' ],
         ] );
         $this->add_control( 'btn_hover_color', [
-            'label'   => esc_html__( 'Text Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#ffffff',
+            'label'     => esc_html__( 'Text Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#ffffff',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-btn:hover' => 'color: {{VALUE}};' ],
         ] );
         $this->add_control( 'btn_hover_border', [
-            'label'   => esc_html__( 'Border Color', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::COLOR,
-            'default' => '#135e96',
+            'label'     => esc_html__( 'Border Color', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'default'   => '#135e96',
+            'selectors' => [ '{{WRAPPER}} .ams-archive-btn:hover' => 'border-color: {{VALUE}};' ],
         ] );
         $this->end_controls_tab();
 
@@ -261,6 +292,7 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
             'default'    => [ 'size' => 4, 'unit' => 'px' ],
             'size_units' => [ 'px' ],
             'range'      => [ 'px' => [ 'min' => 0, 'max' => 50 ] ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-btn' => 'border-radius: {{SIZE}}{{UNIT}};' ],
             'separator'  => 'before',
         ] );
 
@@ -269,6 +301,7 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
             'type'       => \Elementor\Controls_Manager::DIMENSIONS,
             'default'    => [ 'top' => '8', 'right' => '20', 'bottom' => '8', 'left' => '20', 'unit' => 'px' ],
             'size_units' => [ 'px', 'em' ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-btn' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};' ],
         ] );
 
         $this->add_control( 'btn_icon', [
@@ -278,11 +311,52 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         ] );
 
         $this->add_control( 'btn_transition', [
-            'label'   => esc_html__( 'Transition Duration (ms)', 'apotheca-marketing-suite' ),
-            'type'    => \Elementor\Controls_Manager::NUMBER,
-            'default' => 300,
-            'min'     => 0,
-            'max'     => 2000,
+            'label'     => esc_html__( 'Transition Duration (ms)', 'apotheca-marketing-suite' ),
+            'type'      => \Elementor\Controls_Manager::NUMBER,
+            'default'   => 300,
+            'min'       => 0,
+            'max'       => 2000,
+            'selectors' => [ '{{WRAPPER}} .ams-archive-btn' => 'transition: all {{VALUE}}ms ease;' ],
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'btn_typography',
+            'selector' => '{{WRAPPER}} .ams-archive-btn',
+        ] );
+
+        $this->end_controls_section();
+
+        /* ── Style: Spacing ── */
+        $this->start_controls_section( 'section_spacing', [
+            'label' => esc_html__( 'Spacing', 'apotheca-marketing-suite' ),
+            'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+        ] );
+
+        $this->add_control( 'title_margin_bottom', [
+            'label'      => esc_html__( 'Title Bottom Margin', 'apotheca-marketing-suite' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'default'    => [ 'size' => 8, 'unit' => 'px' ],
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 40 ] ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-title' => 'margin-bottom: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'meta_margin_bottom', [
+            'label'      => esc_html__( 'Meta Bottom Margin', 'apotheca-marketing-suite' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'default'    => [ 'size' => 12, 'unit' => 'px' ],
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 40 ] ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-meta' => 'margin-bottom: {{SIZE}}{{UNIT}};' ],
+        ] );
+
+        $this->add_control( 'excerpt_margin_bottom', [
+            'label'      => esc_html__( 'Excerpt Bottom Margin', 'apotheca-marketing-suite' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'default'    => [ 'size' => 12, 'unit' => 'px' ],
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 40 ] ],
+            'selectors'  => [ '{{WRAPPER}} .ams-archive-excerpt' => 'margin-bottom: {{SIZE}}{{UNIT}};' ],
         ] );
 
         $this->end_controls_section();
@@ -307,52 +381,11 @@ class CampaignArchiveWidget extends \Elementor\Widget_Base {
         }
 
         $layout   = $settings['layout'] ?? 'grid';
-        $columns  = absint( $settings['columns'] ?? 3 );
-        $gap      = ( $settings['gap']['size'] ?? 20 ) . 'px';
-        $card_bg  = esc_attr( $settings['card_background'] ?? '#fff' );
-        $card_br  = ( $settings['card_border_radius']['size'] ?? 8 ) . 'px';
-        $pad      = $settings['card_padding'] ?? [ 'top' => '20', 'right' => '20', 'bottom' => '20', 'left' => '20', 'unit' => 'px' ];
-        $pad_str  = $pad['top'] . $pad['unit'] . ' ' . $pad['right'] . $pad['unit'] . ' ' . $pad['bottom'] . $pad['unit'] . ' ' . $pad['left'] . $pad['unit'];
-        $hover_bg = esc_attr( $settings['card_hover_bg'] ?? '#f9f9f9' );
-        $hover_ty = ( $settings['card_hover_translatey']['size'] ?? -4 ) . 'px';
-        $trans    = ( $settings['card_transition'] ?? 300 ) . 'ms';
+        $btn_text = esc_html( $settings['btn_text'] ?? 'Read More' );
 
-        $title_color       = esc_attr( $settings['title_color'] ?? '#333' );
-        $title_hover_color = esc_attr( $settings['title_hover_color'] ?? '#2271b1' );
-        $excerpt_color     = esc_attr( $settings['excerpt_color'] ?? '#666' );
-        $meta_color        = esc_attr( $settings['meta_color'] ?? '#999' );
+        $wrapper_class = 'grid' === $layout ? 'ams-archive-grid' : 'ams-archive-list';
 
-        $btn_text   = esc_html( $settings['btn_text'] ?? 'Read More' );
-        $btn_bg     = esc_attr( $settings['btn_bg'] ?? '#2271b1' );
-        $btn_color  = esc_attr( $settings['btn_color'] ?? '#fff' );
-        $btn_h_bg   = esc_attr( $settings['btn_hover_bg'] ?? '#135e96' );
-        $btn_h_col  = esc_attr( $settings['btn_hover_color'] ?? '#fff' );
-        $btn_br     = ( $settings['btn_border_radius']['size'] ?? 4 ) . 'px';
-        $btn_pad    = $settings['btn_padding'] ?? [ 'top' => '8', 'right' => '20', 'bottom' => '8', 'left' => '20', 'unit' => 'px' ];
-        $btn_pad_s  = $btn_pad['top'] . $btn_pad['unit'] . ' ' . $btn_pad['right'] . $btn_pad['unit'] . ' ' . $btn_pad['bottom'] . $btn_pad['unit'] . ' ' . $btn_pad['left'] . $btn_pad['unit'];
-        $btn_trans  = ( $settings['btn_transition'] ?? 300 ) . 'ms';
-        $btn_bdr_c  = esc_attr( $settings['btn_border_color'] ?? '#2271b1' );
-        $btn_h_bdr  = esc_attr( $settings['btn_hover_border'] ?? '#135e96' );
-
-        $uid = 'ams-' . $this->get_id();
-
-        // Inline <style> scoped to widget.
-        echo '<style>';
-        echo "#{$uid} .ams-archive-card{background:{$card_bg};border-radius:{$card_br};padding:{$pad_str};transition:all {$trans} ease;}";
-        echo "#{$uid} .ams-archive-card:hover{background:{$hover_bg};transform:translateY({$hover_ty});}";
-        echo "#{$uid} .ams-archive-title{color:{$title_color};margin:0 0 8px;}";
-        echo "#{$uid} .ams-archive-card:hover .ams-archive-title{color:{$title_hover_color};}";
-        echo "#{$uid} .ams-archive-excerpt{color:{$excerpt_color};margin:0 0 12px;}";
-        echo "#{$uid} .ams-archive-meta{color:{$meta_color};margin:0 0 12px;font-size:0.85em;}";
-        echo "#{$uid} .ams-archive-btn{display:inline-block;background:{$btn_bg};color:{$btn_color};border:1px solid {$btn_bdr_c};border-radius:{$btn_br};padding:{$btn_pad_s};text-decoration:none;transition:all {$btn_trans} ease;font-weight:600;}";
-        echo "#{$uid} .ams-archive-btn:hover{background:{$btn_h_bg};color:{$btn_h_col};border-color:{$btn_h_bdr};}";
-        echo '</style>';
-
-        $grid_style = 'grid' === $layout
-            ? "display:grid;grid-template-columns:repeat({$columns},1fr);gap:{$gap};"
-            : "display:flex;flex-direction:column;gap:{$gap};";
-
-        echo '<div id="' . esc_attr( $uid ) . '" style="' . esc_attr( $grid_style ) . '">';
+        echo '<div class="' . esc_attr( $wrapper_class ) . '">';
 
         foreach ( $campaigns as $c ) {
             $date    = $c->sent_at ? date_i18n( get_option( 'date_format' ), strtotime( $c->sent_at ) ) : '';
