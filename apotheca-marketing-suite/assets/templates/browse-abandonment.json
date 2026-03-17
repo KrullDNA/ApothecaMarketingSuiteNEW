@@ -1,0 +1,32 @@
+{
+  "name": "Browse Abandonment",
+  "description": "Follow up after product browsing with no cart addition",
+  "trigger_type": "browse_abandonment",
+  "trigger_config": {},
+  "steps": [
+    {
+      "step_type": "send_email",
+      "step_order": 0,
+      "delay_value": 30,
+      "delay_unit": "minutes",
+      "subject": "Still interested, {{first_name}}?",
+      "preview_text": "We noticed you checking something out",
+      "body_html": "<h1>Still Looking?</h1><p>Hi {{first_name}}, we noticed you were browsing some great products. Need help deciding?</p><p>Here's a quick look at what caught your eye.</p>",
+      "body_text": "Hi {{first_name}}, we noticed you browsing. Need help deciding?",
+      "sms_body": "",
+      "conditions": {}
+    },
+    {
+      "step_type": "send_email",
+      "step_order": 1,
+      "delay_value": 24,
+      "delay_unit": "hours",
+      "subject": "These won't last long, {{first_name}}",
+      "preview_text": "Popular items selling fast",
+      "body_html": "<h1>Don't Miss Out</h1><p>Hi {{first_name}}, the products you were looking at are popular and selling fast. Don't miss out!</p>",
+      "body_text": "Hi {{first_name}}, the products you viewed are selling fast!",
+      "sms_body": "",
+      "conditions": {}
+    }
+  ]
+}

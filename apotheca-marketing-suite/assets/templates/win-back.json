@@ -1,0 +1,46 @@
+{
+  "name": "Win-Back Campaign",
+  "description": "Re-engage lapsed customers with emails and SMS over 30 days",
+  "trigger_type": "win_back",
+  "trigger_config": {
+    "days_since_order": 90
+  },
+  "steps": [
+    {
+      "step_type": "send_email",
+      "step_order": 0,
+      "delay_value": 0,
+      "delay_unit": "minutes",
+      "subject": "We miss you, {{first_name}}!",
+      "preview_text": "It's been a while",
+      "body_html": "<h1>We Miss You!</h1><p>Hi {{first_name}}, it's been a while since your last visit. We've been busy adding new products and making things even better.</p><p>Come check out what's new!</p>",
+      "body_text": "Hi {{first_name}}, we miss you! Come see what's new.",
+      "sms_body": "",
+      "conditions": {}
+    },
+    {
+      "step_type": "send_email",
+      "step_order": 1,
+      "delay_value": 15,
+      "delay_unit": "days",
+      "subject": "A special offer just for you, {{first_name}}",
+      "preview_text": "15% off because we miss you",
+      "body_html": "<h1>Welcome Back Offer</h1><p>Hi {{first_name}}, we'd love to welcome you back with a special 15% discount on your next order.</p><p><strong>Use code: MISSYOU15</strong></p>",
+      "body_text": "Hi {{first_name}}, here's 15% off with code MISSYOU15.",
+      "sms_body": "",
+      "conditions": {}
+    },
+    {
+      "step_type": "send_sms",
+      "step_order": 2,
+      "delay_value": 30,
+      "delay_unit": "days",
+      "subject": "",
+      "preview_text": "",
+      "body_html": "",
+      "body_text": "",
+      "sms_body": "Hi {{first_name}}, your 15% discount (MISSYOU15) is expiring soon! Shop now before it's gone. Reply STOP to opt out.",
+      "conditions": {}
+    }
+  ]
+}

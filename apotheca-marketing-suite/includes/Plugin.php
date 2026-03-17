@@ -25,6 +25,7 @@ final class Plugin {
         // REST API endpoints.
         add_action( 'rest_api_init', [ new REST\IngestEndpoint(), 'register_routes' ] );
         add_action( 'rest_api_init', [ new REST\FormsEndpoint(), 'register_routes' ] );
+        add_action( 'rest_api_init', [ new REST\FlowsEndpoint(), 'register_routes' ] );
 
         // SSO receiver.
         $sso = new SSO\Receiver();
@@ -48,11 +49,20 @@ final class Plugin {
         $rfm = new Jobs\RFMScoring();
         $rfm->register();
 
+        // Flows engine.
+        $flow_engine = new Flows\FlowEngine();
+        $flow_engine->register();
+
+        // Flow trigger handlers.
+        $triggers = new Flows\TriggerManager();
+        $triggers->register();
+
         // Admin.
         if ( is_admin() ) {
             new Admin\Menu();
             new Admin\SettingsPage();
             new Admin\SubscribersPage();
+            new Admin\FlowsPage();
         }
     }
 }

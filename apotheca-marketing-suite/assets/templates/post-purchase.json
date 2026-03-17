@@ -1,0 +1,32 @@
+{
+  "name": "Post-Purchase Follow-Up",
+  "description": "Thank you email + review request after 7 days",
+  "trigger_type": "post_purchase",
+  "trigger_config": {},
+  "steps": [
+    {
+      "step_type": "send_email",
+      "step_order": 0,
+      "delay_value": 0,
+      "delay_unit": "minutes",
+      "subject": "Thank you for your order, {{first_name}}!",
+      "preview_text": "Your order is confirmed",
+      "body_html": "<h1>Thank You!</h1><p>Hi {{first_name}}, thank you for your purchase. We're preparing your order and will ship it as soon as possible.</p><p>If you have any questions, don't hesitate to reach out.</p>",
+      "body_text": "Hi {{first_name}}, thank you for your purchase!",
+      "sms_body": "",
+      "conditions": {}
+    },
+    {
+      "step_type": "send_email",
+      "step_order": 1,
+      "delay_value": 7,
+      "delay_unit": "days",
+      "subject": "How's everything going, {{first_name}}? We'd love your feedback",
+      "preview_text": "Share your experience with us",
+      "body_html": "<h1>We'd Love Your Feedback</h1><p>Hi {{first_name}}, we hope you're enjoying your recent purchase! Your feedback helps us improve and helps other customers make informed decisions.</p><p>Would you mind taking a moment to leave a review?</p>",
+      "body_text": "Hi {{first_name}}, we hope you're enjoying your purchase. Would you leave us a review?",
+      "sms_body": "",
+      "conditions": {}
+    }
+  ]
+}

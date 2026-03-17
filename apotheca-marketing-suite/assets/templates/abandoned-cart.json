@@ -1,0 +1,44 @@
+{
+  "name": "Abandoned Cart Recovery",
+  "description": "3-email recovery sequence with social proof and discount",
+  "trigger_type": "abandoned_cart",
+  "trigger_config": {},
+  "steps": [
+    {
+      "step_type": "send_email",
+      "step_order": 0,
+      "delay_value": 1,
+      "delay_unit": "hours",
+      "subject": "{{first_name}}, you left something behind",
+      "preview_text": "Your cart is waiting for you",
+      "body_html": "<h1>Did you forget something?</h1><p>Hi {{first_name}}, it looks like you left some items in your cart. They're still waiting for you!</p><p>Complete your order before they sell out.</p>",
+      "body_text": "Hi {{first_name}}, you left items in your cart. Complete your order before they sell out.",
+      "sms_body": "",
+      "conditions": {}
+    },
+    {
+      "step_type": "send_email",
+      "step_order": 1,
+      "delay_value": 24,
+      "delay_unit": "hours",
+      "subject": "See why customers love these products",
+      "preview_text": "Don't just take our word for it",
+      "body_html": "<h1>What Others Are Saying</h1><p>Hi {{first_name}}, still thinking about those items in your cart? Here's what our customers have to say about them.</p><p>Join thousands of happy customers — complete your order today.</p>",
+      "body_text": "Hi {{first_name}}, see what customers say about the items in your cart.",
+      "sms_body": "",
+      "conditions": {}
+    },
+    {
+      "step_type": "send_email",
+      "step_order": 2,
+      "delay_value": 48,
+      "delay_unit": "hours",
+      "subject": "Last chance — 10% off your cart",
+      "preview_text": "Your exclusive discount expires soon",
+      "body_html": "<h1>Here's a Little Nudge</h1><p>Hi {{first_name}}, we really think you'll love those items. To make it easier, here's 10% off your cart.</p><p><strong>Use code: COMEBACK10</strong></p><p>This offer expires in 24 hours.</p>",
+      "body_text": "Hi {{first_name}}, 10% off your cart with code COMEBACK10. Expires in 24 hours.",
+      "sms_body": "",
+      "conditions": {}
+    }
+  ]
+}

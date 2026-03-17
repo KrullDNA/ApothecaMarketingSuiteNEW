@@ -28,7 +28,7 @@ class Menu {
         $submenus = [
             [ 'ams-dashboard',   __( 'Dashboard', 'apotheca-marketing-suite' ),   [ $this, 'render_dashboard' ] ],
             [ 'ams-subscribers', __( 'Subscribers', 'apotheca-marketing-suite' ), [ $this, 'render_subscribers' ] ],
-            [ 'ams-flows',       __( 'Flows', 'apotheca-marketing-suite' ),       [ $this, 'render_stub' ] ],
+            [ 'ams-flows',       __( 'Flows', 'apotheca-marketing-suite' ),       [ $this, 'render_flows' ] ],
             [ 'ams-campaigns',   __( 'Campaigns', 'apotheca-marketing-suite' ),   [ $this, 'render_stub' ] ],
             [ 'ams-segments',    __( 'Segments', 'apotheca-marketing-suite' ),    [ $this, 'render_stub' ] ],
             [ 'ams-forms',       __( 'Forms', 'apotheca-marketing-suite' ),       [ $this, 'render_forms' ] ],
@@ -61,6 +61,11 @@ class Menu {
 
     public function render_subscribers(): void {
         $page = new SubscribersPage();
+        $page->render();
+    }
+
+    public function render_flows(): void {
+        $page = new FlowsPage();
         $page->render();
     }
 

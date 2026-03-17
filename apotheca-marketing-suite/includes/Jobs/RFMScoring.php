@@ -34,7 +34,7 @@ class RFMScoring {
         $offset = (int) get_option( 'ams_rfm_offset', 0 );
 
         $subscribers = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, total_orders, total_spent, last_order_date, created_at
+            "SELECT id, total_orders, total_spent, last_order_date, created_at, rfm_segment
              FROM {$table}
              WHERE status = 'active'
              ORDER BY id ASC
@@ -54,6 +54,8 @@ class RFMScoring {
         foreach ( $subscribers as $sub ) {
             $scores = $this->calculate_rfm( $sub, $now );
 
+            $old_segment = $sub->rfm_segment ?? '';
+
             $wpdb->update( $table, [
                 'rfm_score'            => $scores['rfm_score'],
                 'rfm_segment'          => $scores['rfm_segment'],
@@ -62,6 +64,11 @@ class RFMScoring {
                 'churn_risk_score'     => $scores['churn_risk_score'],
                 'updated_at'           => current_time( 'mysql', true ),
             ], [ 'id' => $sub->id ] );
+
+            // Fire RFM segment change hook if segment changed.
+            if ( $old_segment && $old_segment !== $scores['rfm_segment'] ) {
+                do_action( 'ams_rfm_segment_changed', (int) $sub->id, $old_segment, $scores['rfm_segment'] );
+            }
         }
 
         // If we got a full batch, schedule continuation.
