@@ -78,6 +78,13 @@ final class Plugin {
         $campaign_mgr = new Campaigns\CampaignManager();
         $campaign_mgr->register();
 
+        // SMS: Twilio provider (Action Scheduler hooks + ams_send_sms listener).
+        $twilio = new SMS\TwilioProvider();
+        $twilio->register();
+
+        // SMS webhook endpoints (inbound + delivery status).
+        add_action( 'rest_api_init', [ new REST\SMSWebhookEndpoint(), 'register_routes' ] );
+
         // Elementor integration.
         add_action( 'elementor/widgets/register', [ $this, 'register_elementor_widgets' ] );
 
