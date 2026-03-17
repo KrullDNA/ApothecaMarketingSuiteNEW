@@ -149,6 +149,9 @@ class IngestEndpoint {
 
         $logger->log( $sub_id, 'placed_order', $payload, $order_id, $product_ids );
         $manager->increment_order_stats( $sub_id, $order_total, current_time( 'mysql', true ) );
+
+        // Fire attribution hook for revenue attribution.
+        do_action( 'ams_order_placed', $sub_id, $order_id, $order_total );
     }
 
     private function handle_order_status_changed( array $payload ): void {

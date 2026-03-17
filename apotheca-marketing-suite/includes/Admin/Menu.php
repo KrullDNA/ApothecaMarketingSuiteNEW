@@ -33,7 +33,7 @@ class Menu {
             [ 'ams-segments',    __( 'Segments', 'apotheca-marketing-suite' ),    [ $this, 'render_segments' ] ],
             [ 'ams-forms',       __( 'Forms', 'apotheca-marketing-suite' ),       [ $this, 'render_forms' ] ],
             [ 'ams-sms',         __( 'SMS', 'apotheca-marketing-suite' ),         [ $this, 'render_stub' ] ],
-            [ 'ams-analytics',   __( 'Analytics', 'apotheca-marketing-suite' ),   [ $this, 'render_stub' ] ],
+            [ 'ams-analytics',   __( 'Analytics', 'apotheca-marketing-suite' ),   [ $this, 'render_analytics' ] ],
             [ 'ams-settings',    __( 'Settings', 'apotheca-marketing-suite' ),    [ $this, 'render_settings' ] ],
         ];
 
@@ -81,6 +81,11 @@ class Menu {
 
     public function render_segments(): void {
         $page = new SegmentsPage();
+        $page->render();
+    }
+
+    public function render_analytics(): void {
+        $page = new AnalyticsPage();
         $page->render();
     }
 
