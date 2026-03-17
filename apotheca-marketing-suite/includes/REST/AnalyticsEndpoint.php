@@ -142,10 +142,14 @@ class AnalyticsEndpoint {
             "SELECT COALESCE(SUM(order_total), 0) FROM {$attr}"
         );
 
-        // Active subscribers (current count).
-        $active_subs = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$subs} WHERE status = 'active'"
-        );
+        // Active subscribers (cached, 1h TTL).
+        $active_subs = wp_cache_get( 'ams_active_subscriber_count', 'ams' );
+        if ( false === $active_subs ) {
+            $active_subs = (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$subs} WHERE status = 'active'"
+            );
+            wp_cache_set( 'ams_active_subscriber_count', $active_subs, 'ams', HOUR_IN_SECONDS );
+        }
 
         // Avg order value for the period.
         $avg_aov = (float) $wpdb->get_var( $wpdb->prepare(

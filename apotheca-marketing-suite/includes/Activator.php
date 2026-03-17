@@ -89,7 +89,8 @@ class Activator {
             UNIQUE KEY subscriber_token (subscriber_token),
             KEY status (status),
             KEY rfm_segment (rfm_segment),
-            KEY churn_risk_score (churn_risk_score)
+            KEY churn_risk_score (churn_risk_score),
+            KEY best_send_hour (best_send_hour)
         ) $charset_collate;";
 
         // ams_events

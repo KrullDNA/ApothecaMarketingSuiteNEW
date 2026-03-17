@@ -1,14 +1,19 @@
 <?php
 /**
  * Plugin Name: Apotheca Marketing Sync
+ * Plugin URI: https://apotheca.io
  * Description: Pushes WooCommerce events to the Apotheca Marketing Suite on the marketing subdomain.
  * Version: 1.0.0
- * Author: Apotheca
+ * Requires at least: 6.4
  * Requires PHP: 8.0
  * Requires Plugins: woocommerce
  * WC requires at least: 8.0
- * Text Domain: apotheca-marketing-sync
+ * Author: Apotheca
+ * Author URI: https://apotheca.io
  * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: apotheca-marketing-sync
+ * Domain Path: /languages
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

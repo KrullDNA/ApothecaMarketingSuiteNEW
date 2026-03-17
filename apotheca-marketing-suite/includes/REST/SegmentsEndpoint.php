@@ -77,6 +77,11 @@ class SegmentsEndpoint {
     }
 
     public function list_segments( \WP_REST_Request $request ): \WP_REST_Response {
+        $cached = wp_cache_get( 'ams_segments_list', 'ams' );
+        if ( false !== $cached ) {
+            return new \WP_REST_Response( $cached, 200 );
+        }
+
         global $wpdb;
         $table = $wpdb->prefix . 'ams_segments';
 
@@ -88,6 +93,7 @@ class SegmentsEndpoint {
             $seg->conditions = json_decode( $seg->conditions, true ) ?: [];
         }
 
+        wp_cache_set( 'ams_segments_list', $segments, 'ams', HOUR_IN_SECONDS );
         return new \WP_REST_Response( $segments, 200 );
     }
 

@@ -133,10 +133,15 @@ class SubscriberCountBadgeWidget extends \Elementor\Widget_Base {
     protected function render(): void {
         $settings = $this->get_settings_for_display();
 
-        global $wpdb;
-        $count = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}ams_subscribers WHERE status = 'active'"
-        );
+        $cache_key = 'ams_active_subscriber_count';
+        $count     = wp_cache_get( $cache_key, 'ams' );
+        if ( false === $count ) {
+            global $wpdb;
+            $count = (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}ams_subscribers WHERE status = 'active'"
+            );
+            wp_cache_set( $cache_key, $count, 'ams', HOUR_IN_SECONDS );
+        }
 
         $format = 'yes' === ( $settings['number_format'] ?? 'yes' );
         $number = $format ? number_format_i18n( $count ) : $count;
