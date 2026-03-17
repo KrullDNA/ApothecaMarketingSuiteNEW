@@ -21,6 +21,13 @@ final class Plugin {
         $this->init();
     }
 
+    /**
+     * Register Elementor widgets.
+     */
+    public function register_elementor_widgets( \Elementor\Widgets_Manager $widgets_manager ): void {
+        $widgets_manager->register( new Elementor\CampaignArchiveWidget() );
+    }
+
     private function init(): void {
         // REST API endpoints.
         add_action( 'rest_api_init', [ new REST\IngestEndpoint(), 'register_routes' ] );
@@ -64,6 +71,16 @@ final class Plugin {
         $segment_recalc = new Segments\SegmentRecalculator();
         $segment_recalc->register();
 
+        // Campaigns REST endpoint.
+        add_action( 'rest_api_init', [ new REST\CampaignsEndpoint(), 'register_routes' ] );
+
+        // Campaign scheduled sending via Action Scheduler.
+        $campaign_mgr = new Campaigns\CampaignManager();
+        $campaign_mgr->register();
+
+        // Elementor integration.
+        add_action( 'elementor/widgets/register', [ $this, 'register_elementor_widgets' ] );
+
         // Admin.
         if ( is_admin() ) {
             new Admin\Menu();
@@ -71,6 +88,7 @@ final class Plugin {
             new Admin\SubscribersPage();
             new Admin\FlowsPage();
             new Admin\SegmentsPage();
+            new Admin\CampaignsPage();
         }
     }
 }
