@@ -293,6 +293,43 @@ class Activator {
             UNIQUE KEY woo_comment_id (woo_comment_id)
         ) $charset_collate;";
 
+        // ams_ai_log
+        $tables[] = "CREATE TABLE {$prefix}ai_log (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            feature VARCHAR(50) NOT NULL DEFAULT '',
+            input_summary TEXT DEFAULT NULL,
+            output_summary TEXT DEFAULT NULL,
+            tokens_used INT NOT NULL DEFAULT 0,
+            cost_usd DECIMAL(8,4) NOT NULL DEFAULT 0.0000,
+            subscriber_id BIGINT UNSIGNED DEFAULT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY feature (feature),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+
+        // ams_products_cache
+        $tables[] = "CREATE TABLE {$prefix}products_cache (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            product_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+            name VARCHAR(255) DEFAULT '',
+            slug VARCHAR(255) DEFAULT '',
+            price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+            sale_price DECIMAL(12,2) DEFAULT NULL,
+            on_sale TINYINT NOT NULL DEFAULT 0,
+            categories JSON DEFAULT NULL,
+            image_url VARCHAR(500) DEFAULT '',
+            product_url VARCHAR(500) DEFAULT '',
+            average_rating DECIMAL(3,2) NOT NULL DEFAULT 0.00,
+            date_created DATETIME DEFAULT NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'publish',
+            cached_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY product_id (product_id),
+            KEY on_sale (on_sale),
+            KEY cached_at (cached_at)
+        ) $charset_collate;";
+
         return $tables;
     }
 }

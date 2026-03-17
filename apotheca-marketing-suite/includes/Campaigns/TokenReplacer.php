@@ -118,10 +118,30 @@ class TokenReplacer {
                 ? $product_data['product_url'] . '#reviews'
                 : ( $store_url ? $store_url : '' ),
 
-            // AI recommendations (Session 9 placeholder).
-            'ai_product_recommendations' => $extra['ai_product_recommendations'] ?? '',
+            // AI product recommendations.
+            'ai_product_recommendations' => ! empty( $extra['ai_product_recommendations'] )
+                ? $extra['ai_product_recommendations']
+                : self::generate_recommendations( $subscriber ),
         ];
 
         return array_merge( $context, $extra );
+    }
+
+    /**
+     * Generate product recommendations HTML for a subscriber.
+     */
+    private static function generate_recommendations( ?object $subscriber ): string {
+        if ( ! $subscriber || empty( $subscriber->id ) ) {
+            return '';
+        }
+
+        $ai_settings = get_option( 'ams_ai_settings', [] );
+        $enabled     = $ai_settings['enabled_features'] ?? [];
+        if ( ! empty( $enabled ) && ! in_array( 'product_recs', $enabled, true ) ) {
+            return '';
+        }
+
+        $recommender = new \Apotheca\Marketing\AI\ProductRecommender();
+        return $recommender->recommend( (int) $subscriber->id );
     }
 }

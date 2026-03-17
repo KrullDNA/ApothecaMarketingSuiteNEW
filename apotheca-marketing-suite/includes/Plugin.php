@@ -95,6 +95,27 @@ final class Plugin {
         add_filter( 'query_vars', [ $review_gate, 'query_vars' ] );
         add_action( 'template_redirect', [ $review_gate, 'handle_request' ] );
 
+        // AI: subject line + email body generators (Action Scheduler hooks).
+        $sl_gen = new AI\SubjectLineGenerator();
+        $sl_gen->register();
+        $eb_gen = new AI\EmailBodyGenerator();
+        $eb_gen->register();
+
+        // AI: send-time optimisation (nightly job).
+        $sto = new AI\SendTimeOptimiser();
+        $sto->register();
+
+        // AI: products cache refresh (nightly job).
+        $products_cache = new AI\ProductsCacheJob();
+        $products_cache->register();
+
+        // AI: segment suggester (Action Scheduler hook).
+        $seg_suggest = new AI\SegmentSuggester();
+        $seg_suggest->register();
+
+        // AI REST endpoints.
+        add_action( 'rest_api_init', [ new REST\AIEndpoint(), 'register_routes' ] );
+
         // Analytics: attribution engine (listens for ams_order_placed action).
         $attribution = new Analytics\AttributionEngine();
         $attribution->register();

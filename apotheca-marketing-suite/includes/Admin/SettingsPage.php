@@ -17,6 +17,7 @@ class SettingsPage {
         add_action( 'wp_ajax_ams_test_sms', [ $this, 'ajax_test_sms' ] );
         add_action( 'wp_ajax_ams_save_reviews_settings', [ $this, 'ajax_save_reviews_settings' ] );
         add_action( 'wp_ajax_ams_refresh_reviews', [ $this, 'ajax_refresh_reviews' ] );
+        add_action( 'wp_ajax_ams_save_ai_settings', [ $this, 'ajax_save_ai_settings' ] );
     }
 
     public function register_settings(): void {
@@ -60,6 +61,7 @@ class SettingsPage {
                 <a href="#sync" class="nav-tab nav-tab-active" data-tab="sync"><?php esc_html_e( 'Sync', 'apotheca-marketing-suite' ); ?></a>
                 <a href="#sms" class="nav-tab" data-tab="sms"><?php esc_html_e( 'SMS', 'apotheca-marketing-suite' ); ?></a>
                 <a href="#reviews" class="nav-tab" data-tab="reviews"><?php esc_html_e( 'Reviews', 'apotheca-marketing-suite' ); ?></a>
+                <a href="#ai" class="nav-tab" data-tab="ai"><?php esc_html_e( 'AI', 'apotheca-marketing-suite' ); ?></a>
             </h2>
 
             <div class="ams-tab-content" id="ams-tab-sync">
@@ -143,6 +145,8 @@ class SettingsPage {
 
             <?php $this->render_reviews_tab(); ?>
 
+            <?php $this->render_ai_tab(); ?>
+
         </div><!-- .wrap -->
 
         <script>
@@ -164,6 +168,8 @@ class SettingsPage {
             if (smsTab) smsTab.style.display = 'none';
             var reviewsTab = document.getElementById('ams-tab-reviews');
             if (reviewsTab) reviewsTab.style.display = 'none';
+            var aiTab = document.getElementById('ams-tab-ai');
+            if (aiTab) aiTab.style.display = 'none';
 
             var ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
 
@@ -299,6 +305,29 @@ class SettingsPage {
                     };
                     xhr.onerror = function() { refreshBtn.disabled = false; result.textContent = 'Network error.'; result.style.color = 'red'; };
                     xhr.send('action=ams_refresh_reviews&_wpnonce=<?php echo esc_js( wp_create_nonce( 'ams_refresh_reviews' ) ); ?>');
+                });
+            }
+
+            /* Save AI settings */
+            var aiForm = document.getElementById('ams-ai-settings-form');
+            if (aiForm) {
+                aiForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var result = document.getElementById('ams-ai-save-result');
+                    result.textContent = 'Saving...';
+                    var fd = new FormData(aiForm);
+                    fd.append('action', 'ams_save_ai_settings');
+                    fd.append('_wpnonce', '<?php echo esc_js( wp_create_nonce( 'ams_ai_settings' ) ); ?>');
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', ajaxUrl);
+                    xhr.onload = function() {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            result.textContent = data.success ? 'AI settings saved!' : (data.data || 'Save failed.');
+                            result.style.color = data.success ? 'green' : 'red';
+                        } catch(e) { result.textContent = 'Error.'; result.style.color = 'red'; }
+                    };
+                    xhr.send(fd);
                 });
             }
         })();
@@ -706,6 +735,143 @@ class SettingsPage {
         $result = $job->manual_refresh();
 
         wp_send_json_success( $result );
+    }
+
+    /**
+     * Render the AI settings tab.
+     */
+    private function render_ai_tab(): void {
+        $ai_settings = get_option( 'ams_ai_settings', [] );
+        $settings    = get_option( 'ams_settings', [] );
+        $has_key     = ! empty( $settings['openai_api_key'] );
+
+        $enabled = $ai_settings['enabled_features'] ?? [ 'subject_line', 'email_body', 'send_time', 'product_recs', 'segment_suggestions' ];
+        $budget  = (int) ( $ai_settings['monthly_token_budget'] ?? 500000 );
+
+        $provider    = new \Apotheca\Marketing\AI\OpenAIProvider();
+        $used_tokens = $provider->get_monthly_usage();
+        $used_cost   = $provider->get_monthly_cost();
+        $budget_pct  = $budget > 0 ? round( $used_tokens / $budget * 100, 1 ) : 0;
+
+        $all_features = [
+            'subject_line'        => 'Subject Line Generator',
+            'email_body'          => 'Email Body Generator',
+            'send_time'           => 'Send-Time Optimisation',
+            'product_recs'        => 'Product Recommendations',
+            'segment_suggestions' => 'Segment Suggestions',
+        ];
+        ?>
+        <div class="ams-tab-content" id="ams-tab-ai">
+            <form id="ams-ai-settings-form">
+                <h2><?php esc_html_e( 'AI Settings', 'apotheca-marketing-suite' ); ?></h2>
+                <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row">
+                            <label for="ams_openai_api_key"><?php esc_html_e( 'OpenAI API Key', 'apotheca-marketing-suite' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="password" id="ams_openai_api_key" name="openai_api_key"
+                                   value="<?php echo $has_key ? '••••••••' : ''; ?>"
+                                   class="regular-text" autocomplete="new-password" />
+                            <p class="description"><?php esc_html_e( 'Your OpenAI API key. Stored encrypted.', 'apotheca-marketing-suite' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Enabled Features', 'apotheca-marketing-suite' ); ?></th>
+                        <td>
+                            <?php foreach ( $all_features as $key => $label ) : ?>
+                                <label style="display:block;margin-bottom:6px;">
+                                    <input type="checkbox" name="enabled_features[]" value="<?php echo esc_attr( $key ); ?>"
+                                        <?php checked( in_array( $key, $enabled, true ) ); ?> />
+                                    <?php echo esc_html( $label ); ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="ams_ai_budget"><?php esc_html_e( 'Monthly Token Budget', 'apotheca-marketing-suite' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="number" id="ams_ai_budget" name="monthly_token_budget"
+                                   value="<?php echo esc_attr( $budget ); ?>"
+                                   min="0" step="10000" class="regular-text" />
+                            <p class="description"><?php esc_html_e( 'Set to 0 for unlimited. Warning at 80%, pause at 100%.', 'apotheca-marketing-suite' ); ?></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <p class="submit">
+                    <button type="submit" class="button button-primary"><?php esc_html_e( 'Save AI Settings', 'apotheca-marketing-suite' ); ?></button>
+                    <span id="ams-ai-save-result" style="margin-left:10px;"></span>
+                </p>
+            </form>
+
+            <hr />
+
+            <h2><?php esc_html_e( 'Usage This Month', 'apotheca-marketing-suite' ); ?></h2>
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row"><?php esc_html_e( 'Tokens Used', 'apotheca-marketing-suite' ); ?></th>
+                    <td>
+                        <strong><?php echo number_format( $used_tokens ); ?></strong>
+                        <?php if ( $budget > 0 ) : ?>
+                            / <?php echo number_format( $budget ); ?> (<?php echo esc_html( $budget_pct ); ?>%)
+                            <?php if ( $budget_pct >= 80 ) : ?>
+                                <span style="color:#dba617;font-weight:600;margin-left:8px;"><?php esc_html_e( 'Approaching limit', 'apotheca-marketing-suite' ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( $budget_pct >= 100 ) : ?>
+                                <span style="color:#d63638;font-weight:600;margin-left:8px;"><?php esc_html_e( 'Budget exceeded — AI paused', 'apotheca-marketing-suite' ); ?></span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e( 'Estimated Cost', 'apotheca-marketing-suite' ); ?></th>
+                    <td>$<?php echo number_format( $used_cost, 4 ); ?></td>
+                </tr>
+            </table>
+        </div><!-- #ams-tab-ai -->
+        <?php
+    }
+
+    /**
+     * AJAX handler: save AI settings.
+     */
+    public function ajax_save_ai_settings(): void {
+        check_ajax_referer( 'ams_ai_settings' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( __( 'Insufficient permissions.', 'apotheca-marketing-suite' ) );
+        }
+
+        // Save API key to ams_settings (encrypted).
+        $api_key = sanitize_text_field( wp_unslash( $_POST['openai_api_key'] ?? '' ) );
+        $settings = get_option( 'ams_settings', [] );
+        if ( ! empty( $api_key ) && '••••••••' !== $api_key ) {
+            $settings['openai_api_key'] = \Apotheca\Marketing\AI\OpenAIProvider::encrypt( $api_key );
+        }
+        update_option( 'ams_settings', $settings );
+
+        // Save AI-specific settings.
+        $enabled_features = [];
+        if ( isset( $_POST['enabled_features'] ) && is_array( $_POST['enabled_features'] ) ) {
+            $valid = [ 'subject_line', 'email_body', 'send_time', 'product_recs', 'segment_suggestions' ];
+            foreach ( $_POST['enabled_features'] as $f ) {
+                $f = sanitize_text_field( $f );
+                if ( in_array( $f, $valid, true ) ) {
+                    $enabled_features[] = $f;
+                }
+            }
+        }
+
+        $ai_settings = [
+            'enabled_features'     => $enabled_features,
+            'monthly_token_budget' => max( 0, (int) ( $_POST['monthly_token_budget'] ?? 500000 ) ),
+        ];
+        update_option( 'ams_ai_settings', $ai_settings );
+
+        wp_send_json_success( __( 'AI settings saved.', 'apotheca-marketing-suite' ) );
     }
 
     /**
