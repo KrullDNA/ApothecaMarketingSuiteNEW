@@ -12,9 +12,13 @@ class Activator {
         self::create_tables();
         self::set_default_settings();
 
-        // Flush rewrite rules for SSO endpoint.
+        // Flush rewrite rules for SSO, unsubscribe, and confirm endpoints.
         $sso = new SSO\Receiver();
         $sso->add_rewrite_rules();
+        $unsub = new GDPR\UnsubscribeHandler();
+        $unsub->add_rewrite_rules();
+        $doi = new GDPR\DoubleOptIn();
+        $doi->add_rewrite_rules();
         flush_rewrite_rules();
     }
 

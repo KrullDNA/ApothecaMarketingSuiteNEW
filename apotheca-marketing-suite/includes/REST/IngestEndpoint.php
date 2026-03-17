@@ -102,14 +102,153 @@ class IngestEndpoint {
         }
     }
 
-    // Stub handlers — to be implemented in Sessions 2-3.
-    private function handle_customer_registered( array $payload ): void {}
-    private function handle_order_placed( array $payload ): void {}
-    private function handle_order_status_changed( array $payload ): void {}
-    private function handle_cart_updated( array $payload ): void {}
-    private function handle_checkout_started( array $payload ): void {}
-    private function handle_product_viewed( array $payload ): void {}
-    private function handle_abandoned_cart( array $payload ): void {}
+    private function handle_customer_registered( array $payload ): void {
+        $manager = new \Apotheca\Marketing\Subscriber\SubscriberManager();
+        $logger  = new \Apotheca\Marketing\Subscriber\EventLogger();
+
+        $email = sanitize_email( $payload['email'] ?? '' );
+        if ( ! is_email( $email ) ) {
+            return;
+        }
+
+        $is_new = null === $manager->find_by_email( $email );
+
+        $sub_id = $manager->create_or_update( $email, [
+            'first_name' => $payload['first_name'] ?? '',
+            'last_name'  => $payload['last_name'] ?? '',
+            'source'     => 'sync_registration',
+        ] );
+
+        $logger->log( $sub_id, 'customer_registered', $payload );
+
+        // If new subscriber, fire welcome flow trigger.
+        if ( $is_new && $sub_id ) {
+            do_action( 'ams_flow_trigger', 'welcome', $sub_id, $payload );
+        }
+    }
+
+    private function handle_order_placed( array $payload ): void {
+        $manager = new \Apotheca\Marketing\Subscriber\SubscriberManager();
+        $logger  = new \Apotheca\Marketing\Subscriber\EventLogger();
+
+        $email = sanitize_email( $payload['customer_email'] ?? '' );
+        if ( ! is_email( $email ) ) {
+            return;
+        }
+
+        $sub_id = $manager->create_or_update( $email, [
+            'first_name' => $payload['billing_first_name'] ?? '',
+            'last_name'  => $payload['billing_last_name'] ?? '',
+            'phone'      => $payload['billing_phone'] ?? '',
+            'source'     => 'sync_order',
+        ] );
+
+        $order_id    = absint( $payload['order_id'] ?? 0 );
+        $order_total = (float) ( $payload['order_total'] ?? 0 );
+        $product_ids = array_map( 'absint', $payload['product_ids'] ?? [] );
+
+        $logger->log( $sub_id, 'placed_order', $payload, $order_id, $product_ids );
+        $manager->increment_order_stats( $sub_id, $order_total, current_time( 'mysql', true ) );
+    }
+
+    private function handle_order_status_changed( array $payload ): void {
+        $manager = new \Apotheca\Marketing\Subscriber\SubscriberManager();
+        $logger  = new \Apotheca\Marketing\Subscriber\EventLogger();
+
+        $email = sanitize_email( $payload['customer_email'] ?? '' );
+        $sub   = $email ? $manager->find_by_email( $email ) : null;
+        if ( ! $sub ) {
+            return;
+        }
+
+        $order_id   = absint( $payload['order_id'] ?? 0 );
+        $new_status = sanitize_text_field( $payload['new_status'] ?? '' );
+
+        $logger->log( (int) $sub->id, 'order_status_changed', $payload, $order_id );
+
+        if ( 'completed' === $new_status ) {
+            do_action( 'ams_flow_trigger', 'post_purchase', (int) $sub->id, $payload );
+        }
+        if ( 'refunded' === $new_status ) {
+            $logger->log( (int) $sub->id, 'refund_requested', $payload, $order_id );
+        }
+    }
+
+    private function handle_cart_updated( array $payload ): void {
+        $manager = new \Apotheca\Marketing\Subscriber\SubscriberManager();
+        $logger  = new \Apotheca\Marketing\Subscriber\EventLogger();
+
+        $sub = null;
+        $email = sanitize_email( $payload['customer_email'] ?? '' );
+        if ( $email ) {
+            $sub = $manager->find_by_email( $email );
+        }
+        if ( ! $sub && ! empty( $payload['subscriber_token'] ) ) {
+            $sub = $manager->find_by_token( sanitize_text_field( $payload['subscriber_token'] ) );
+        }
+        if ( ! $sub ) {
+            return;
+        }
+
+        $product_ids = array_map( 'absint', $payload['product_ids'] ?? [] );
+        $logger->log( (int) $sub->id, 'added_to_cart', $payload, 0, $product_ids );
+
+        // Reset abandoned cart timer — schedule check in 60 minutes.
+        if ( function_exists( 'as_unschedule_all_actions' ) ) {
+            as_unschedule_all_actions( 'ams_check_abandoned_cart', [ (int) $sub->id ], 'ams' );
+        }
+        if ( function_exists( 'as_schedule_single_action' ) ) {
+            as_schedule_single_action( time() + 3600, 'ams_check_abandoned_cart', [ (int) $sub->id ], 'ams' );
+        }
+    }
+
+    private function handle_checkout_started( array $payload ): void {
+        $manager = new \Apotheca\Marketing\Subscriber\SubscriberManager();
+        $logger  = new \Apotheca\Marketing\Subscriber\EventLogger();
+
+        $email = sanitize_email( $payload['customer_email'] ?? '' );
+        if ( ! is_email( $email ) ) {
+            return;
+        }
+
+        $sub_id = $manager->create_or_update( $email, [
+            'source' => 'sync_order',
+        ] );
+
+        $logger->log( $sub_id, 'started_checkout', $payload );
+    }
+
+    private function handle_product_viewed( array $payload ): void {
+        $manager = new \Apotheca\Marketing\Subscriber\SubscriberManager();
+        $logger  = new \Apotheca\Marketing\Subscriber\EventLogger();
+
+        $sub = null;
+        if ( ! empty( $payload['subscriber_token'] ) ) {
+            $sub = $manager->find_by_token( sanitize_text_field( $payload['subscriber_token'] ) );
+        }
+        if ( ! $sub ) {
+            return;
+        }
+
+        $product_ids = [ absint( $payload['product_id'] ?? 0 ) ];
+        $logger->log( (int) $sub->id, 'viewed_product', $payload, 0, array_filter( $product_ids ) );
+    }
+
+    private function handle_abandoned_cart( array $payload ): void {
+        $manager = new \Apotheca\Marketing\Subscriber\SubscriberManager();
+        $logger  = new \Apotheca\Marketing\Subscriber\EventLogger();
+
+        $email = sanitize_email( $payload['customer_email'] ?? '' );
+        $sub   = $email ? $manager->find_by_email( $email ) : null;
+        if ( ! $sub ) {
+            return;
+        }
+
+        $product_ids = array_map( 'absint', $payload['product_ids'] ?? [] );
+        $logger->log( (int) $sub->id, 'abandoned_cart', $payload, 0, $product_ids );
+
+        do_action( 'ams_flow_trigger', 'abandoned_cart', (int) $sub->id, $payload );
+    }
 
     /**
      * Log an ingest event to ams_sync_log.

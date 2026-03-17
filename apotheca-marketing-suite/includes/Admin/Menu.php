@@ -27,11 +27,11 @@ class Menu {
         // Sub-menus.
         $submenus = [
             [ 'ams-dashboard',   __( 'Dashboard', 'apotheca-marketing-suite' ),   [ $this, 'render_dashboard' ] ],
-            [ 'ams-subscribers', __( 'Subscribers', 'apotheca-marketing-suite' ), [ $this, 'render_stub' ] ],
+            [ 'ams-subscribers', __( 'Subscribers', 'apotheca-marketing-suite' ), [ $this, 'render_subscribers' ] ],
             [ 'ams-flows',       __( 'Flows', 'apotheca-marketing-suite' ),       [ $this, 'render_stub' ] ],
             [ 'ams-campaigns',   __( 'Campaigns', 'apotheca-marketing-suite' ),   [ $this, 'render_stub' ] ],
             [ 'ams-segments',    __( 'Segments', 'apotheca-marketing-suite' ),    [ $this, 'render_stub' ] ],
-            [ 'ams-forms',       __( 'Forms', 'apotheca-marketing-suite' ),       [ $this, 'render_stub' ] ],
+            [ 'ams-forms',       __( 'Forms', 'apotheca-marketing-suite' ),       [ $this, 'render_forms' ] ],
             [ 'ams-sms',         __( 'SMS', 'apotheca-marketing-suite' ),         [ $this, 'render_stub' ] ],
             [ 'ams-analytics',   __( 'Analytics', 'apotheca-marketing-suite' ),   [ $this, 'render_stub' ] ],
             [ 'ams-settings',    __( 'Settings', 'apotheca-marketing-suite' ),    [ $this, 'render_settings' ] ],
@@ -57,6 +57,16 @@ class Menu {
     public function render_stub(): void {
         echo '<div class="wrap"><h1>' . esc_html__( 'Coming Soon', 'apotheca-marketing-suite' ) . '</h1>';
         echo '<p>' . esc_html__( 'This feature will be available in a future session.', 'apotheca-marketing-suite' ) . '</p></div>';
+    }
+
+    public function render_subscribers(): void {
+        $page = new SubscribersPage();
+        $page->render();
+    }
+
+    public function render_forms(): void {
+        $page = new FormsPage();
+        $page->render();
     }
 
     public function render_settings(): void {
