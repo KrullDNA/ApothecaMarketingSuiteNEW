@@ -331,6 +331,17 @@ class Activator {
             KEY cached_at (cached_at)
         ) $charset_collate;";
 
+        // ams_email_templates
+        $tables[] = "CREATE TABLE {$prefix}email_templates (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            name VARCHAR(200) NOT NULL DEFAULT '',
+            description VARCHAR(500) DEFAULT '',
+            structure_json LONGTEXT DEFAULT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
         return $tables;
     }
 }

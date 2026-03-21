@@ -29,7 +29,8 @@ class Menu {
             [ 'ams-dashboard',   __( 'Dashboard', 'apotheca-marketing-suite' ),   [ $this, 'render_dashboard' ] ],
             [ 'ams-subscribers', __( 'Subscribers', 'apotheca-marketing-suite' ), [ $this, 'render_subscribers' ] ],
             [ 'ams-flows',       __( 'Flows', 'apotheca-marketing-suite' ),       [ $this, 'render_flows' ] ],
-            [ 'ams-campaigns',   __( 'Campaigns', 'apotheca-marketing-suite' ),   [ $this, 'render_campaigns' ] ],
+            [ 'ams-campaigns',        __( 'Campaigns', 'apotheca-marketing-suite' ),        [ $this, 'render_campaigns' ] ],
+            [ 'ams-email-templates',  __( 'Email Templates', 'apotheca-marketing-suite' ),  [ $this, 'render_email_templates' ] ],
             [ 'ams-segments',    __( 'Segments', 'apotheca-marketing-suite' ),    [ $this, 'render_segments' ] ],
             [ 'ams-forms',       __( 'Forms', 'apotheca-marketing-suite' ),       [ $this, 'render_forms' ] ],
             [ 'ams-sms',         __( 'SMS', 'apotheca-marketing-suite' ),         [ $this, 'render_stub' ] ],
@@ -76,6 +77,11 @@ class Menu {
 
     public function render_campaigns(): void {
         $page = new CampaignsPage();
+        $page->render();
+    }
+
+    public function render_email_templates(): void {
+        $page = new EmailTemplatesPage();
         $page->render();
     }
 
