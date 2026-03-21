@@ -150,6 +150,11 @@ class CampaignsEndpoint {
             $data['body_html'] = $inliner->inline( $data['body_html'] );
         }
 
+        // Preserve blocks_json (editor state) as raw JSON string.
+        if ( isset( $data['blocks_json'] ) ) {
+            $data['blocks_json'] = wp_unslash( $data['blocks_json'] );
+        }
+
         $manager->update( $id, $data );
 
         return $this->get_campaign( $request );

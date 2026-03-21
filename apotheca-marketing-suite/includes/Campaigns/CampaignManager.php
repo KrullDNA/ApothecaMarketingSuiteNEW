@@ -38,6 +38,7 @@ class CampaignManager {
             'preview_text' => sanitize_text_field( $data['preview_text'] ?? '' ),
             'body_html'    => wp_kses_post( $data['body_html'] ?? '' ),
             'body_text'    => sanitize_textarea_field( $data['body_text'] ?? '' ),
+            'blocks_json'  => isset( $data['blocks_json'] ) ? wp_kses_post( $data['blocks_json'] ) : null,
             'sms_body'     => sanitize_textarea_field( $data['sms_body'] ?? '' ),
             'scheduled_at' => $data['scheduled_at'] ?? null,
             'created_at'   => current_time( 'mysql', true ),
@@ -74,6 +75,9 @@ class CampaignManager {
         }
         if ( isset( $data['body_text'] ) ) {
             $fields['body_text'] = sanitize_textarea_field( $data['body_text'] );
+        }
+        if ( isset( $data['blocks_json'] ) ) {
+            $fields['blocks_json'] = wp_kses_post( $data['blocks_json'] );
         }
         if ( isset( $data['sms_body'] ) ) {
             $fields['sms_body'] = sanitize_textarea_field( $data['sms_body'] );

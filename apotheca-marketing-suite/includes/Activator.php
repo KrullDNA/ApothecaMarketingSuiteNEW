@@ -167,6 +167,7 @@ class Activator {
             preview_text VARCHAR(150) DEFAULT '',
             body_html LONGTEXT DEFAULT NULL,
             body_text LONGTEXT DEFAULT NULL,
+            blocks_json LONGTEXT DEFAULT NULL,
             sms_body TEXT DEFAULT NULL,
             scheduled_at DATETIME DEFAULT NULL,
             sent_at DATETIME DEFAULT NULL,
