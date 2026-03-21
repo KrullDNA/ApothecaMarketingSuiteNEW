@@ -33,6 +33,7 @@ class EmailTemplatesPage {
             'siteName' => get_bloginfo( 'name' ),
         ] );
 
+        wp_enqueue_media();
         wp_enqueue_style( 'wp-components' );
         wp_enqueue_style(
             'ams-email-editor',
