@@ -1,287 +1,337 @@
 /**
- * Apotheca Marketing Suite — Drag & Drop Email Editor Styles
+ * Apotheca Marketing Suite — Email Editor Styles
+ * Modeled on the working KDNA E-commerce email builder.
  */
 
-/* ── Layout ── */
-.ams-editor-wrap {
+/* ── Main Layout ── */
+#ams-email-editor {
     display: flex;
-    height: calc(100vh - 80px);
-    background: #f0f0f0;
+    gap: 0;
+    min-height: calc(100vh - 80px);
+    background: #f0f0f1;
 }
 
-/* ── Left Sidebar: Block Palette ── */
-.ams-palette {
-    width: 220px;
+/* ── Sidebar ── */
+.ams-etb-sidebar {
+    width: 300px;
+    min-width: 300px;
     background: #fff;
     border-right: 1px solid #c3c4c7;
-    overflow-y: auto;
-    flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
-.ams-palette-section {
-    padding: 12px;
+.ams-etb-tabs {
+    display: flex;
     border-bottom: 1px solid #e0e0e0;
 }
 
-.ams-palette-section h3 {
-    margin: 0 0 8px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #757575;
+.ams-etb-tab {
+    flex: 1;
+    padding: 10px 12px;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    background: #f6f7f7;
+    font-size: 12px;
+    font-weight: 600;
+    color: #50575e;
+    transition: all 0.2s;
 }
 
-.ams-palette-item {
-    display: flex;
-    align-items: center;
+.ams-etb-tab:hover {
+    background: #e8e8e8;
+}
+
+.ams-etb-tab.active {
+    background: #fff;
+    color: #2271b1;
+    border-bottom: 2px solid #2271b1;
+}
+
+.ams-etb-panel {
+    display: none;
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.ams-etb-panel.active {
+    display: block;
+}
+
+/* ── Block Palette Grid ── */
+.ams-etb-block-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    padding: 8px 10px;
-    margin-bottom: 4px;
-    background: #f8f9fa;
+}
+
+.ams-etb-block-item {
+    padding: 12px 8px;
+    text-align: center;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     cursor: grab;
-    font-size: 13px;
-    color: #1e1e1e;
-    transition: all 0.15s ease;
+    background: #fff;
+    transition: all 0.2s;
+    font-size: 11px;
+    color: #50575e;
     user-select: none;
 }
 
-.ams-palette-item:hover {
-    background: #e8f0fe;
+.ams-etb-block-item:hover {
     border-color: #2271b1;
+    background: #f0f6fc;
     color: #2271b1;
 }
 
-.ams-palette-item:active {
+.ams-etb-block-item:active {
     cursor: grabbing;
 }
 
-.ams-palette-item.dragging {
+.ams-etb-block-item.dragging {
     opacity: 0.4;
 }
 
-.ams-palette-item .dashicons {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
+.ams-etb-block-item .dashicons {
+    display: block;
+    margin: 0 auto 6px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
 }
 
-/* ── Center: Canvas ── */
-.ams-canvas-area {
+/* ── Canvas ── */
+.ams-etb-canvas {
     flex: 1;
+    padding: 0;
     overflow-y: auto;
-    padding: 20px;
-}
-
-.ams-canvas {
-    max-width: 600px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    min-height: 200px;
-    position: relative;
-}
-
-/* ── Empty Canvas State ── */
-.ams-canvas-empty {
-    text-align: center;
-    padding: 60px 40px;
-    color: #999;
-}
-
-.ams-canvas-empty .dashicons {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    color: #c3c4c7;
-    margin-bottom: 12px;
-}
-
-.ams-canvas-empty p {
-    font-size: 14px;
-    margin: 0;
-}
-
-/* ── Drop Zones ── */
-.ams-drop-zone {
-    height: 4px;
-    margin: 0 -4px;
-    border-radius: 2px;
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-.ams-drop-zone.active {
-    height: 40px;
-    border: 2px dashed #2271b1;
-    background: #f0f6fc;
-    margin: 4px -4px;
-    border-radius: 4px;
-}
-
-.ams-drop-zone.active::after {
-    content: 'Drop here';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #2271b1;
-    font-size: 12px;
-    font-weight: 500;
-    pointer-events: none;
-}
-
-/* Large drop zone when canvas is empty */
-.ams-drop-zone-empty {
-    min-height: 120px;
-    border: 2px dashed #c3c4c7;
-    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    color: #999;
-    font-size: 14px;
 }
 
-.ams-drop-zone-empty.active {
+.ams-etb-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid #c3c4c7;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ams-etb-toolbar .button {
+    white-space: nowrap;
+}
+
+/* Email frame — full width, no border, no extra padding */
+.ams-etb-email-frame {
+    width: 100%;
+    margin: 20px auto;
+    background: #fff;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ams-etb-email-body {
+    min-height: 300px;
+}
+
+/* ── Drop Zone ── */
+.ams-etb-drop-zone {
+    min-height: 100px;
+    border: 2px dashed #c3c4c7;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 13px;
+    transition: all 0.2s;
+    margin: 20px;
+}
+
+.ams-etb-drop-zone.drag-over {
     border-color: #2271b1;
     background: #f0f6fc;
     color: #2271b1;
 }
 
-/* ── Canvas Block ── */
-.ams-canvas-block {
+.ams-etb-drop-zone.has-blocks {
+    border: none;
+    min-height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0;
+    border-radius: 0;
+}
+
+/* ── Row ── */
+.ams-etb-row {
     position: relative;
-    padding: 4px;
-    border: 2px solid transparent;
-    border-radius: 4px;
-    transition: border-color 0.15s ease;
+    border: 1px solid transparent;
+    margin: 0;
+    transition: border-color 0.2s;
     cursor: pointer;
 }
 
-.ams-canvas-block:hover {
-    border-color: rgba(34, 113, 177, 0.3);
-}
-
-.ams-canvas-block.selected {
+.ams-etb-row:hover {
     border-color: #2271b1;
 }
 
-.ams-canvas-block.dragging {
-    opacity: 0.4;
+.ams-etb-row.selected {
     border-color: #2271b1;
-    border-style: dashed;
+    box-shadow: 0 0 0 1px #2271b1;
 }
 
-/* ── Drag Handle ── */
-.ams-drag-handle {
-    position: absolute;
-    left: -32px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 3px;
-    cursor: grab;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    z-index: 5;
-    color: #757575;
-    font-size: 16px;
-}
-
-.ams-canvas-block:hover .ams-drag-handle,
-.ams-canvas-block.selected .ams-drag-handle {
-    opacity: 1;
-}
-
-.ams-drag-handle:hover {
-    background: #2271b1;
-    border-color: #2271b1;
-    color: #fff;
-}
-
-.ams-drag-handle:active {
-    cursor: grabbing;
-}
-
-/* ── Block Actions Overlay ── */
-.ams-block-actions {
+/* ── Row Actions (move handle, duplicate, delete) ── */
+.ams-etb-row-actions {
     position: absolute;
     top: -1px;
     right: -1px;
     display: none;
     gap: 2px;
     z-index: 10;
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    border-radius: 0 4px 0 4px;
-    padding: 2px;
 }
 
-.ams-canvas-block:hover .ams-block-actions,
-.ams-canvas-block.selected .ams-block-actions {
+.ams-etb-row:hover .ams-etb-row-actions,
+.ams-etb-row.selected .ams-etb-row-actions {
     display: flex;
 }
 
-.ams-block-actions button {
+.ams-etb-row-action {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2271b1;
+    color: #fff;
     border: none;
-    background: transparent;
     cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 2px;
-    color: #757575;
-    font-size: 16px;
-    line-height: 1;
+    font-size: 14px;
+    padding: 0;
 }
 
-.ams-block-actions button:hover {
-    background: #f0f0f0;
-    color: #1e1e1e;
+.ams-etb-row-action:hover {
+    background: #135e96;
 }
 
-.ams-block-actions button.destructive:hover {
-    background: #fce4e4;
-    color: #cc1818;
+.ams-etb-row-action.move {
+    cursor: grab;
 }
 
-/* ── Right Sidebar ── */
-.ams-sidebar-right {
-    width: 320px;
-    background: #fff;
-    border-left: 1px solid #c3c4c7;
-    overflow-y: auto;
-    flex-shrink: 0;
+.ams-etb-row-action.move:active {
+    cursor: grabbing;
 }
 
-.ams-sidebar-actions {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    gap: 8px;
+.ams-etb-row-action.delete {
+    background: #d63638;
 }
 
-.ams-sidebar-section {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
+.ams-etb-row-action.delete:hover {
+    background: #b32d2e;
 }
 
-.ams-sidebar-section h3 {
+/* ── Block in Canvas — full width ── */
+.ams-etb-block {
+    display: block;
+    width: 100%;
+    min-height: 20px;
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+    transition: outline-color 0.15s;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+}
+
+.ams-etb-block:hover {
+    outline-color: rgba(34, 113, 177, 0.35);
+}
+
+.ams-etb-block.selected {
+    outline-color: #2271b1;
+}
+
+/* ── Settings Panel Fields ── */
+.ams-etb-settings-group {
+    margin-bottom: 16px;
+}
+
+.ams-etb-settings-group h4 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #999;
     margin: 0 0 8px;
+    letter-spacing: 0.5px;
+}
+
+.ams-etb-field {
+    margin-bottom: 10px;
+}
+
+.ams-etb-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #50575e;
+}
+
+.ams-etb-field input[type="text"],
+.ams-etb-field input[type="number"],
+.ams-etb-field input[type="url"],
+.ams-etb-field select,
+.ams-etb-field textarea {
+    width: 100%;
     font-size: 13px;
+}
+
+.ams-etb-field textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* ── Alignment buttons ── */
+.ams-etb-align-group {
+    display: flex;
+    gap: 4px;
+}
+
+.ams-etb-align-btn {
+    padding: 4px 8px;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 16px;
+}
+
+.ams-etb-align-btn.active {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+
+/* ── Sortable placeholder ── */
+.ams-sortable-placeholder {
+    border: 2px dashed #2271b1;
+    background: #f0f6fc;
+    border-radius: 4px;
+    visibility: visible !important;
+    height: 60px;
+}
+
+.ui-sortable-helper {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
 }
 
 /* ── Template Chooser Modal ── */
@@ -356,7 +406,6 @@
     background: #f8f9fa;
     padding: 12px;
     border-bottom: 1px solid #e0e0e0;
-    position: relative;
 }
 
 .ams-template-card-preview-inner {
@@ -382,47 +431,10 @@
     color: #757575;
 }
 
-/* ── Preview Overlay ── */
-.ams-preview-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 100000;
-    display: flex;
-    flex-direction: column;
-}
-
-.ams-preview-header {
-    background: #fff;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-/* ── Block type label badge ── */
-.ams-block-type-label {
-    position: absolute;
-    left: 4px;
-    top: -1px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #fff;
-    background: #2271b1;
-    padding: 1px 6px;
-    border-radius: 0 0 3px 3px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    pointer-events: none;
-    z-index: 4;
-}
-
-.ams-canvas-block:hover .ams-block-type-label,
-.ams-canvas-block.selected .ams-block-type-label {
-    opacity: 1;
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+    .ams-etb-sidebar {
+        width: 250px;
+        min-width: 250px;
+    }
 }

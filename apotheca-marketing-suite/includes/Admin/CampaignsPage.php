@@ -20,7 +20,7 @@ class CampaignsPage {
         wp_enqueue_script(
             'ams-email-editor',
             AMS_PLUGIN_URL . 'assets/js/ams-email-editor.min.js',
-            [ 'wp-element', 'wp-components', 'wp-api-fetch' ],
+            [ 'jquery', 'jquery-ui-sortable', 'wp-element', 'wp-components', 'wp-api-fetch' ],
             AMS_VERSION,
             true
         );
