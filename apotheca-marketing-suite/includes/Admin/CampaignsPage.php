@@ -34,6 +34,13 @@ class CampaignsPage {
         ] );
 
         wp_enqueue_style( 'wp-components' );
+
+        wp_enqueue_style(
+            'ams-email-editor',
+            AMS_PLUGIN_URL . 'assets/css/ams-email-editor.css',
+            [ 'wp-components', 'dashicons' ],
+            AMS_VERSION
+        );
     }
 
     public function render(): void {
