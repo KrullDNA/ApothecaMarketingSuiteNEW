@@ -84,6 +84,12 @@ class EmailTemplatesEndpoint {
         $description = sanitize_text_field( $request->get_param( 'description' ) ?: '' );
         $json        = $request->get_param( 'structure_json' ) ?: '{"settings":{},"rows":[]}';
 
+        // Ensure the JSON is a valid string (wp may pass it as decoded array/object).
+        if ( is_array( $json ) || is_object( $json ) ) {
+            $json = wp_json_encode( $json );
+        }
+        $json = wp_unslash( $json );
+
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
         $wpdb->insert( $table, [
             'name'           => $name,
@@ -95,7 +101,7 @@ class EmailTemplatesEndpoint {
 
         $id = $wpdb->insert_id;
         if ( ! $id ) {
-            return new \WP_REST_Response( [ 'message' => 'Failed to create template.' ], 500 );
+            return new \WP_REST_Response( [ 'message' => 'Failed to create template.', 'error' => $wpdb->last_error ], 500 );
         }
 
         return new \WP_REST_Response( [ 'id' => $id, 'name' => $name ], 201 );
@@ -114,7 +120,11 @@ class EmailTemplatesEndpoint {
             $data['description'] = sanitize_text_field( $request->get_param( 'description' ) );
         }
         if ( $request->has_param( 'structure_json' ) ) {
-            $data['structure_json'] = $request->get_param( 'structure_json' );
+            $json = $request->get_param( 'structure_json' );
+            if ( is_array( $json ) || is_object( $json ) ) {
+                $json = wp_json_encode( $json );
+            }
+            $data['structure_json'] = wp_unslash( $json );
         }
 
         if ( empty( $data ) ) {

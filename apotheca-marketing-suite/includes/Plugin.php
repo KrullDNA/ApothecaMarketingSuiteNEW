@@ -18,7 +18,20 @@ final class Plugin {
     }
 
     private function __construct() {
+        $this->maybe_upgrade();
         $this->init();
+    }
+
+    /**
+     * Run the activator if the stored DB version doesn't match the current plugin version.
+     * This ensures new tables / columns added in later versions are created automatically
+     * without requiring the user to deactivate and reactivate the plugin.
+     */
+    private function maybe_upgrade(): void {
+        $stored = get_option( 'ams_db_version', '0' );
+        if ( version_compare( $stored, AMS_VERSION, '<' ) ) {
+            Activator::activate();
+        }
     }
 
     /**
