@@ -8,6 +8,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class EmailTemplatesEndpoint {
 
+    /**
+     * Ensure the email_templates table exists, creating it if needed.
+     * Uses dbDelta so it's safe to call on every request.
+     */
+    private function ensure_table(): void {
+        global $wpdb;
+        $table = $wpdb->prefix . 'ams_email_templates';
+
+        // Quick check — if the table already exists, skip the heavier dbDelta call.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+        if ( $exists ) {
+            return;
+        }
+
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE {$table} (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            name VARCHAR(200) NOT NULL DEFAULT '',
+            description VARCHAR(500) DEFAULT '',
+            structure_json LONGTEXT DEFAULT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) {$charset_collate};";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta( $sql );
+    }
+
     public function register_routes(): void {
         register_rest_route( 'ams/v1/admin', '/email-templates', [
             [
@@ -46,6 +76,7 @@ class EmailTemplatesEndpoint {
     }
 
     public function list_templates( \WP_REST_Request $request ): \WP_REST_Response {
+        $this->ensure_table();
         global $wpdb;
         $table = $wpdb->prefix . 'ams_email_templates';
 
@@ -77,6 +108,7 @@ class EmailTemplatesEndpoint {
     }
 
     public function create_template( \WP_REST_Request $request ): \WP_REST_Response {
+        $this->ensure_table();
         global $wpdb;
         $table = $wpdb->prefix . 'ams_email_templates';
 
