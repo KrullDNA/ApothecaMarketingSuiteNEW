@@ -119,7 +119,7 @@ class TokenReplacer {
                     }
 
                     $html .= '<div style="background:' . $card_bg . ';border-radius:8px;margin-bottom:12px;overflow:hidden;">';
-                    $html .= '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-family:' . $font . ';">';
+                    $html .= '<table class="ams-stack" cellpadding="0" cellspacing="0" border="0" width="100%" style="font-family:' . $font . ';">';
                     $html .= '<tr>';
 
                     // Product image — left column.
