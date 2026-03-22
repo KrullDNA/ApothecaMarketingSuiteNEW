@@ -18,7 +18,28 @@ final class Plugin {
     }
 
     private function __construct() {
+        $this->maybe_upgrade();
         $this->init();
+    }
+
+    /**
+     * Internal DB schema version — bump this whenever tables/columns are added.
+     * Separate from AMS_VERSION so schema upgrades fire even within the same
+     * plugin version (e.g. during development).
+     */
+    const DB_SCHEMA_VERSION = '1.0.1';
+
+    /**
+     * Run the activator if the stored DB schema version is outdated.
+     * This ensures new tables / columns are created automatically
+     * without requiring the user to deactivate and reactivate the plugin.
+     */
+    private function maybe_upgrade(): void {
+        $stored = get_option( 'ams_db_version', '0' );
+        if ( version_compare( $stored, self::DB_SCHEMA_VERSION, '<' ) ) {
+            Activator::activate();
+            update_option( 'ams_db_version', self::DB_SCHEMA_VERSION );
+        }
     }
 
     /**
