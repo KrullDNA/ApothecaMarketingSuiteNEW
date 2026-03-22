@@ -102,6 +102,9 @@ final class Plugin {
         // Campaigns REST endpoint.
         add_action( 'rest_api_init', [ new REST\CampaignsEndpoint(), 'register_routes' ] );
 
+        // Email Templates REST endpoint.
+        add_action( 'rest_api_init', [ new REST\EmailTemplatesEndpoint(), 'register_routes' ] );
+
         // Campaign scheduled sending via Action Scheduler.
         $campaign_mgr = new Campaigns\CampaignManager();
         $campaign_mgr->register();
@@ -168,6 +171,7 @@ final class Plugin {
             new Admin\FlowsPage();
             new Admin\SegmentsPage();
             new Admin\CampaignsPage();
+            new Admin\EmailTemplatesPage();
             new Admin\AnalyticsPage();
         }
     }

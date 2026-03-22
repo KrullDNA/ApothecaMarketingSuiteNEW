@@ -27,11 +27,12 @@ class FlowsPage {
         );
 
         wp_localize_script( 'ams-flow-builder', 'amsFlowBuilder', [
-            'restUrl'      => rest_url( 'ams/v1/admin/flows' ),
-            'nonce'        => wp_create_nonce( 'wp_rest' ),
-            'triggerTypes' => \Apotheca\Marketing\Flows\TriggerManager::valid_types(),
-            'stepTypes'    => \Apotheca\Marketing\Flows\StepExecutorFactory::valid_types(),
-            'listUrl'      => admin_url( 'admin.php?page=ams-flows' ),
+            'restUrl'          => rest_url( 'ams/v1/admin/flows' ),
+            'templatesRestUrl' => rest_url( 'ams/v1/admin/email-templates' ),
+            'nonce'            => wp_create_nonce( 'wp_rest' ),
+            'triggerTypes'     => \Apotheca\Marketing\Flows\TriggerManager::valid_types(),
+            'stepTypes'        => \Apotheca\Marketing\Flows\StepExecutorFactory::valid_types(),
+            'listUrl'          => admin_url( 'admin.php?page=ams-flows' ),
         ] );
 
         wp_enqueue_style( 'wp-components' );
