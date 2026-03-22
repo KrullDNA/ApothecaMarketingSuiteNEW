@@ -120,7 +120,7 @@
 /* ── Canvas ── */
 .ams-etb-canvas {
     flex: 1;
-    padding: 20px;
+    padding: 0 20px 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -142,10 +142,10 @@
     white-space: nowrap;
 }
 
-/* Email frame — full width, no border, no extra padding */
+/* Email frame — full width, flush top, no extra padding */
 .ams-etb-email-frame {
     width: 100%;
-    margin: 20px auto;
+    margin: 0 auto 20px;
     background: #fff;
     min-height: 400px;
     position: relative;
@@ -154,6 +154,7 @@
 
 .ams-etb-email-body {
     min-height: 300px;
+    padding: 0;
 }
 
 /* ── Drop Zone ── */
