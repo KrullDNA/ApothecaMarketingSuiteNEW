@@ -4,11 +4,25 @@
  */
 
 /* ── Main Layout ── */
-#ams-email-editor {
+#ams-email-editor,
+#ams-email-template-editor {
     display: flex;
-    gap: 0;
+    flex-direction: column;
     min-height: calc(100vh - 80px);
     background: #f0f0f1;
+}
+
+/* Main body — sidebar + canvas side by side */
+.ams-etb-main,
+#ams-email-editor {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+/* When #ams-email-editor is used directly (campaigns), it IS the main flex row */
+#ams-email-editor {
+    flex-direction: row;
 }
 
 /* ── Sidebar ── */
@@ -106,7 +120,7 @@
 /* ── Canvas ── */
 .ams-etb-canvas {
     flex: 1;
-    padding: 0;
+    padding: 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
