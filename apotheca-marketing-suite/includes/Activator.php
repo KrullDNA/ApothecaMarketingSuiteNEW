@@ -10,6 +10,7 @@ class Activator {
 
     public static function activate(): void {
         self::create_tables();
+        update_option( 'ams_db_version', AMS_VERSION );
         self::set_default_settings();
 
         // Flush rewrite rules for SSO, unsubscribe, and confirm endpoints.
@@ -37,7 +38,7 @@ class Activator {
         }
     }
 
-    private static function create_tables(): void {
+    public static function create_tables(): void {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
         $prefix          = $wpdb->prefix . 'ams_';
@@ -49,8 +50,6 @@ class Activator {
         foreach ( $tables as $sql ) {
             dbDelta( $sql );
         }
-
-        update_option( 'ams_db_version', AMS_VERSION );
     }
 
     private static function get_table_schemas( string $prefix, string $charset_collate ): array {
