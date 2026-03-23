@@ -150,11 +150,54 @@
     min-height: 400px;
     position: relative;
     overflow: hidden;
+    transition: max-width 0.3s ease;
 }
 
 .ams-etb-email-body {
     min-height: 300px;
     padding: 0;
+}
+
+/* ── Responsive Preview Toggle ── */
+.ams-etb-device-toggle {
+    display: inline-flex;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 4px;
+}
+.ams-etb-device-toggle button {
+    border: none;
+    background: #f0f0f0;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.ams-etb-device-toggle button + button {
+    border-left: 1px solid #c3c4c7;
+}
+.ams-etb-device-toggle button.active {
+    background: #2271b1;
+    color: #fff;
+}
+.ams-etb-device-toggle button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Mobile canvas mode */
+.ams-etb-email-frame.ams-mobile-preview {
+    max-width: 375px !important;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    margin-top: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
 /* ── Drop Zone ── */

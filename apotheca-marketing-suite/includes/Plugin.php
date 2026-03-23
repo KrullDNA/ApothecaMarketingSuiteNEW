@@ -30,14 +30,14 @@ final class Plugin {
     const DB_SCHEMA_VERSION = '1.0.1';
 
     /**
-     * Run the activator if the stored DB schema version is outdated.
-     * This ensures new tables / columns are created automatically
-     * without requiring the user to deactivate and reactivate the plugin.
+     * Run table creation if the stored DB schema version is outdated.
+     * Only creates/updates tables via dbDelta — does NOT flush rewrite
+     * rules or instantiate other classes (that only happens on plugin activation).
      */
     private function maybe_upgrade(): void {
         $stored = get_option( 'ams_db_version', '0' );
         if ( version_compare( $stored, self::DB_SCHEMA_VERSION, '<' ) ) {
-            Activator::activate();
+            Activator::create_tables();
             update_option( 'ams_db_version', self::DB_SCHEMA_VERSION );
         }
     }
